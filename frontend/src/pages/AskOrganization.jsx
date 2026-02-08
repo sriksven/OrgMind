@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import IntelligencePanel from '../components/features/IntelligencePanel/IntelligencePanel'
+import KnowledgeGraph from '../components/features/KnowledgeGraph/KnowledgeGraph'
 
 function extractAnswer(result) {
   if (!result) return ''
@@ -8,9 +10,14 @@ function extractAnswer(result) {
 
 export default function AskOrganization({ onQuery, queryResult, processing }) {
   const [question, setQuestion] = useState('')
+  const [visualMode, setVisualMode] = useState('impact')
 
   const answer = useMemo(() => extractAnswer(queryResult), [queryResult])
   const contextNodes = queryResult?.context?.nodes || []
+
+  const isIntelligence = !!queryResult?.brief
+  const brief = queryResult?.brief || {}
+  const visualData = queryResult?.visual_reasoning
 
   const examples = [
     'Who knows about SOC2?',
@@ -52,7 +59,36 @@ export default function AskOrganization({ onQuery, queryResult, processing }) {
 
       <section className="page-section">
         <h3>Result</h3>
-        {answer ? (
+
+        {processing && <div className="loading-indicator">Thinking...</div>}
+
+        {!processing && !queryResult && <span>No query yet.</span>}
+
+        {!processing && queryResult && isIntelligence && (
+          <div className="intelligence-page-layout" style={{ marginTop: '20px' }}>
+            <IntelligencePanel
+              brief={brief}
+              onAction={(a) => console.log(a)}
+            />
+
+            {visualData && (
+              <div className="visual-block" style={{ marginTop: '20px', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
+                <div style={{ padding: '10px 15px', background: '#f8fafc', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', borderRadius: '12px 12px 0 0' }}>
+                  <strong>Visual Reasoning</strong>
+                  <div>
+                    <button className={`filter-chip ${visualMode === 'impact' ? 'active' : ''}`} onClick={() => setVisualMode('impact')} style={{ fontSize: '0.8em', padding: '2px 8px' }}>Impact</button>
+                    <button className={`filter-chip ${visualMode === 'timeline' ? 'active' : ''}`} onClick={() => setVisualMode('timeline')} style={{ fontSize: '0.8em', padding: '2px 8px', marginLeft: '5px' }}>Timeline</button>
+                  </div>
+                </div>
+                <div style={{ height: '500px' }}>
+                  <KnowledgeGraph data={visualData} visualMode={visualMode} />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!processing && queryResult && !isIntelligence && answer && (
           <div className="list-rows">
             <div className="list-row">
               <span>{answer}</span>
@@ -64,8 +100,6 @@ export default function AskOrganization({ onQuery, queryResult, processing }) {
               </div>
             ))}
           </div>
-        ) : (
-          <span>No query yet.</span>
         )}
       </section>
     </div>

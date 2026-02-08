@@ -1,4 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+import IntelligencePanel from '../components/features/IntelligencePanel/IntelligencePanel'
+import KnowledgeGraph from '../components/features/KnowledgeGraph/KnowledgeGraph'
+import SituationBrief from '../components/features/SituationBrief/SituationBrief'
 
 const conflictRegex = /conflict|risk|blocker|delay|issue/i
 
@@ -18,11 +21,25 @@ export default function CommandCenter({
   graphMeta,
   statsApi,
   agentStatus,
-  onQuery,
   queryResult,
   processing,
 }) {
-  const [question, setQuestion] = useState('')
+  const [visualMode, setVisualMode] = useState('default')
+
+  // Auto-switch visual mode when new intelligence result arrives
+  useEffect(() => {
+    if (queryResult?.brief) {
+      if (queryResult.brief.risks?.length > 0) {
+        setVisualMode('impact')
+      } else {
+        const scope = queryResult.brief.scope;
+        const scopeTimeframe = typeof scope === 'string' ? scope : scope?.timeframe;
+        if (scopeTimeframe?.includes('24h') || scopeTimeframe?.includes('week') || scopeTimeframe?.includes('Today')) {
+          setVisualMode('timeline')
+        }
+      }
+    }
+  }, [queryResult])
 
   const nodes = graph?.nodes || []
   const edges = graph?.edges || []
@@ -99,69 +116,24 @@ export default function CommandCenter({
   const answer = queryResult?.answer || queryResult?.result || queryResult?.summary || ''
   const contextNodes = queryResult?.context?.nodes || []
 
-  const handleAsk = () => {
-    if (!question.trim()) return
-    onQuery?.(question, { showModal: false })
-  }
+  // Check if result is intelligence-based
+  const isIntelligence = !!queryResult?.brief
 
   return (
     <div className="page">
-      <div className="page-header">
+      <div className="page-header" style={{ display: 'none' }}>
         <h2>Command Center</h2>
         <p>The daily starting point for founders, managers, and ICs.</p>
       </div>
 
-      <section className="page-section">
-        <h3>What Changed Today</h3>
-        <div className="metric-grid">
-          <div className="metric-card">
-            <strong>Decisions made</strong>
-            <small>Version {graphMeta?.version ?? 0}</small>
-            <div className="list-rows">
-              {recentDecisions.length === 0 && <span>No recent decisions</span>}
-              {recentDecisions.map((d) => (
-                <div key={d.id} className="list-row">
-                  <span>{d.label || d.id}</span>
-                  <span>{formatDate(d.date)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="metric-card">
-            <strong>Knowledge updates</strong>
-            <small>Graph refresh</small>
-            <div className="list-rows">
-              <div className="list-row">
-                <span>Nodes</span>
-                <span>{deltaNodes >= 0 ? `+${deltaNodes}` : deltaNodes}</span>
-              </div>
-              <div className="list-row">
-                <span>Edges</span>
-                <span>{deltaEdges >= 0 ? `+${deltaEdges}` : deltaEdges}</span>
-              </div>
-            </div>
-          </div>
-          <div className="metric-card">
-            <strong>New risks/conflicts</strong>
-            <small>Critic agent signals</small>
-            <div className="list-rows">
-              {conflictSteps.length === 0 && <span>No conflicts detected</span>}
-              {conflictSteps.slice(0, 3).map((c, i) => (
-                <div key={i} className="list-row">
-                  <span>{c.step}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="metric-card">
-            <strong>Blockers detected</strong>
-            <small>Routing + memory signals</small>
-            <div className="list-rows">
-              <span>No blockers detected</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Top Section: Situation Brief (Chief of Staff View) */}
+      <SituationBrief
+        graph={graph}
+        graphMeta={graphMeta}
+        agentStatus={agentStatus}
+        intelligenceBrief={queryResult?.brief}
+        onAction={(action) => console.log('Situation Action:', action)}
+      />
 
       <section className="page-section">
         <h3>Alignment Health</h3>
@@ -190,64 +162,16 @@ export default function CommandCenter({
               ))}
             </div>
           </div>
-          <div className="metric-card">
-            <strong>Silent stakeholders</strong>
-            <small>People with 0 connections</small>
-            <div className="list-rows">
-              <div className="list-row">
-                <span>Total</span>
-                <span>{silentStakeholders.length}</span>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
-      <section className="page-section">
-        <h3>AI Recommendations</h3>
-        <div className="list-rows">
-          {alignmentSignals.map((t) => (
-            <div key={t.id} className="list-row">
-              <span>Expand awareness on "{t.label}" — only {t.count} people connected.</span>
-            </div>
-          ))}
-          {silentStakeholders.length > 0 && (
-            <div className="list-row">
-              <span>{silentStakeholders.length} people have no connections — consider outreach.</span>
-            </div>
-          )}
-        </div>
-      </section>
 
-      <section className="page-section">
-        <h3>Interaction</h3>
-        <div className="inline-input">
-          <input
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="What changed that affects revenue?"
-          />
-          <button onClick={handleAsk} disabled={processing}>
-            Ask
-          </button>
-        </div>
-        {answer && (
-          <div className="list-rows" style={{ marginTop: '1rem' }}>
-            <div className="list-row">
-              <span>{answer}</span>
-            </div>
-            {contextNodes.slice(0, 5).map((n) => (
-              <div key={n.id} className="list-row">
-                <span>{n.label || n.id}</span>
-                <span>{n.type || 'entity'}</span>
-              </div>
-            ))}
-          </div>
-        )}
-        <small style={{ color: 'var(--text-muted)' }}>
-          Voice input will be added later.
-        </small>
-      </section>
+
+      {/* Interaction Section Removed */}
+      {/* Fallback space for displaying global query results if desired within page context, though modal handles it now */}
+
+      {/* Intelligence results are now displayed in the Sidebar */}
+
     </div>
   )
 }

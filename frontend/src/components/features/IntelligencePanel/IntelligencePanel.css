@@ -1,0 +1,159 @@
+.intelligence-panel {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  margin-top: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  max-width: 800px;
+  font-family: 'Inter', sans-serif;
+}
+
+.imp-header {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 12px;
+}
+
+.imp-title h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.imp-scope {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 4px;
+  display: block;
+}
+
+.imp-section {
+  margin-bottom: 20px;
+}
+
+.imp-section-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.imp-section-title.warning {
+  color: #d97706;
+}
+
+.imp-section-title.danger {
+  color: #ef4444;
+}
+
+.imp-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.imp-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f8fafc;
+  font-size: 0.95rem;
+  color: #334155;
+  display: flex;
+  align-items: flex-start;
+}
+
+.imp-list.changes li:before {
+  content: "•";
+  color: #3b82f6;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.imp-list.risks li:before {
+  content: "⚠️";
+  margin-right: 8px;
+}
+
+.imp-list.blockers li:before {
+  content: "⛔";
+  margin-right: 8px;
+}
+
+.imp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.activity-map {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.activity-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.activity-row:last-child {
+  margin-bottom: 0;
+}
+
+.activity-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-right: 8px;
+  min-width: 100px;
+}
+
+.activity-teams {
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.imp-actions {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  color: #475569;
+}
+
+.action-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.action-btn.notify {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.action-btn.notify:hover {
+  background: #dbeafe;
+}

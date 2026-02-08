@@ -13,13 +13,19 @@ export default function OrganizationBrain({
   loading,
   selectedNode,
   onSelectNode,
+  visualReasoning, // New prop
+  onClearIntelligence // Callback to clear search
 }) {
   const [showConflicts, setShowConflicts] = useState(false)
   const [showOutdated, setShowOutdated] = useState(false)
   const [showSilos, setShowSilos] = useState(false)
 
-  const nodes = graph?.nodes || []
-  const edges = graph?.edges || []
+  // Use intelligence graph if available, otherwise full graph
+  const displayGraph = visualReasoning || graph
+  const isIntelligenceMode = !!visualReasoning
+
+  const nodes = displayGraph?.nodes || []
+  const edges = displayGraph?.edges || []
 
   const peopleIds = useMemo(() => new Set(nodes.filter((n) => n.type === 'person').map((n) => n.id)), [nodes])
   const topicIds = useMemo(() => new Set(nodes.filter((n) => n.type === 'topic').map((n) => n.id)), [nodes])
@@ -83,23 +89,37 @@ export default function OrganizationBrain({
       </div>
 
       <section className="page-section">
-        <h3>Filters</h3>
-        <div className="filter-bar">
-          <button className={`filter-chip ${showConflicts ? 'active' : ''}`} onClick={() => setShowConflicts(!showConflicts)}>
-            Show conflicts ({conflictIds.size})
-          </button>
-          <button className={`filter-chip ${showOutdated ? 'active' : ''}`} onClick={() => setShowOutdated(!showOutdated)}>
-            Show outdated knowledge ({outdatedIds.size})
-          </button>
-          <button className={`filter-chip ${showSilos ? 'active' : ''}`} onClick={() => setShowSilos(!showSilos)}>
-            Show knowledge silos ({siloIds.size})
-          </button>
-        </div>
+        {isIntelligenceMode ? (
+          <div className="intelligence-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div>
+              <h3 style={{ margin: 0 }}>Viewing Intelligence Result</h3>
+              <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Focusing on relevant nodes and connections.</p>
+            </div>
+            <button className="btn secondary" onClick={onClearIntelligence}>
+              Back to Full Graph
+            </button>
+          </div>
+        ) : (
+          <>
+            <h3>Filters</h3>
+            <div className="filter-bar">
+              <button className={`filter-chip ${showConflicts ? 'active' : ''}`} onClick={() => setShowConflicts(!showConflicts)}>
+                Show conflicts ({conflictIds.size})
+              </button>
+              <button className={`filter-chip ${showOutdated ? 'active' : ''}`} onClick={() => setShowOutdated(!showOutdated)}>
+                Show outdated knowledge ({outdatedIds.size})
+              </button>
+              <button className={`filter-chip ${showSilos ? 'active' : ''}`} onClick={() => setShowSilos(!showSilos)}>
+                Show knowledge silos ({siloIds.size})
+              </button>
+            </div>
+          </>
+        )}
       </section>
 
       <section className="page-section">
         <KnowledgeGraph
-          data={graph}
+          data={displayGraph}
           selectedNode={selectedNode}
           onSelectNode={onSelectNode}
           loading={loading}

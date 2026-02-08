@@ -1,14 +1,20 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
+import IntelligencePanel from '../IntelligencePanel/IntelligencePanel'
+import KnowledgeGraph from '../KnowledgeGraph/KnowledgeGraph'
 import './QueryResponse.css'
 
 export default function QueryResponse({ result, onClose }) {
+  const [visualMode, setVisualMode] = useState(
+    result?.brief?.risks?.length > 0 ? 'impact' : 'timeline'
+  )
+
   if (!result) return null
 
-  // Parse the response
-  const summary = result.summary || extractSummary(result)
-  const stakeholders = result.stakeholders || extractStakeholders(result)
-  const actions = result.actions || []
-  const conflicts = result.conflicts || []
+  // Support both legacy result format and new intelligence format
+  const isIntelligence = !!result.brief
+  const brief = result.brief || {}
+  const visualData = result.visual_reasoning
 
   return (
     <motion.div
@@ -18,127 +24,65 @@ export default function QueryResponse({ result, onClose }) {
       exit={{ opacity: 0, y: -20 }}
     >
       <div className="response-header">
-        <h3>Results</h3>
+        <h3>{isIntelligence ? 'Intelligence Brief' : 'Results'}</h3>
         <button className="close-btn" onClick={onClose}>×</button>
       </div>
 
-      {/* Summary Section */}
-      {summary && (
-        <div className="response-section summary-section">
-          <div className="section-icon">💡</div>
-          <div className="section-content">
-            <h4>Summary</h4>
-            <p>{summary}</p>
-          </div>
-        </div>
-      )}
+      <div className="response-body">
+        {isIntelligence ? (
+          <div className="intelligence-modal-layout">
+            <IntelligencePanel
+              brief={brief}
+              onAction={(a) => console.log('Action:', a)}
+            />
 
-      {/* Conflicts/Alerts */}
-      {conflicts.length > 0 && (
-        <div className="response-section alert-section">
-          <div className="section-icon">⚠️</div>
-          <div className="section-content">
-            <h4>Attention Needed</h4>
-            <div className="alert-list">
-              {conflicts.map((conflict, i) => (
-                <div key={i} className="alert-item">
-                  <span className="alert-title">{conflict.title}</span>
-                  <span className="alert-desc">{conflict.description}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Stakeholders */}
-      {stakeholders.length > 0 && (
-        <div className="response-section stakeholder-section">
-          <div className="section-icon">👥</div>
-          <div className="section-content">
-            <h4>People Involved</h4>
-            <div className="stakeholder-grid">
-              {stakeholders.map((person, i) => (
-                <div key={i} className="stakeholder-card">
-                  <div className="stakeholder-avatar">
-                    {person.name?.[0] || '?'}
-                  </div>
-                  <div className="stakeholder-info">
-                    <div className="stakeholder-name">{person.name}</div>
-                    <div className="stakeholder-role">{person.role || 'Team member'}</div>
+            {visualData && (
+              <div className="modal-visual-map">
+                <div className="visual-header">
+                  <strong>Visual Reasoning</strong>
+                  <div className="visual-controls">
+                    <button
+                      className={`mode-btn ${visualMode === 'impact' ? 'active' : ''}`}
+                      onClick={() => setVisualMode('impact')}
+                    >
+                      Impact
+                    </button>
+                    <button
+                      className={`mode-btn ${visualMode === 'timeline' ? 'active' : ''}`}
+                      onClick={() => setVisualMode('timeline')}
+                    >
+                      Timeline
+                    </button>
                   </div>
                 </div>
-              ))}
+                <div className="visual-graph-container">
+                  <KnowledgeGraph
+                    data={visualData}
+                    visualMode={visualMode}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Fallback for legacy results or simple string answers */
+          <div className="legacy-response">
+            <div className="response-section summary-section">
+              <div className="section-icon">💡</div>
+              <div className="section-content">
+                <h4>Summary</h4>
+                <p>{result.answer || result.result || 'No content available.'}</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Actions */}
-      {actions.length > 0 && (
-        <div className="response-section actions-section">
-          <div className="section-icon">⚡</div>
-          <div className="section-content">
-            <h4>Quick Actions</h4>
-            <div className="action-buttons">
-              {actions.map((action, i) => (
-                <button key={i} className="action-btn">
-                  <span>{action.icon}</span>
-                  <span>{action.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Graph Link */}
       <div className="response-footer">
-        <button className="view-graph-btn">
-          🗺️ View in Company Map
+        <button className="view-graph-btn" onClick={onClose}>
+          Close
         </button>
       </div>
     </motion.div>
   )
-}
-
-// Helper functions to extract info from result
-function extractSummary(result) {
-  if (typeof result === 'string') return result
-  if (result.result) return result.result
-  if (result.answer) return result.answer
-  
-  // Try to build a summary from memory data
-  if (result.memory) {
-    const mem = result.memory
-    let parts = []
-    
-    if (mem.nodes_added > 0) {
-      parts.push(`Added ${mem.nodes_added} new items`)
-    }
-    if (mem.edges_added > 0) {
-      parts.push(`Created ${mem.edges_added} connections`)
-    }
-    if (parts.length > 0) {
-      return parts.join('. ') + '.'
-    }
-  }
-  
-  return 'Query completed successfully'
-}
-
-function extractStakeholders(result) {
-  const people = []
-  
-  // From memory extraction
-  if (result.memory?.extracted?.people) {
-    result.memory.extracted.people.forEach(p => {
-      people.push({
-        name: p.name,
-        role: p.role || 'Team member'
-      })
-    })
-  }
-  
-  return people.slice(0, 6) // Max 6 for display
 }

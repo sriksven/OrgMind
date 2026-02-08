@@ -30,11 +30,11 @@ function createSimpleGridLayout(nodes) {
   const NODE_HEIGHT = 100
   const GAP_X = 150  // Increased from 80
   const GAP_Y = 130  // Increased from 100
-  
+
   nodes.forEach((node, index) => {
     const row = Math.floor(index / COLS)
     const col = index % COLS
-    
+
     positioned.push({
       ...node,
       position: {
@@ -43,18 +43,45 @@ function createSimpleGridLayout(nodes) {
       }
     })
   })
-  
+
+
   return positioned
 }
 
-function toFlowNodes(nodes, filter, extraFilter) {
+function createTimelineLayout(nodes) {
+  // Sort nodes by date if available, or id as proxy
+  const sorted = [...nodes].sort((a, b) => {
+    return (a.metadata?.created_at || 0) - (b.metadata?.created_at || 0)
+  })
+
+  const positioned = []
+  const NODE_WIDTH = 200
+  const NODE_HEIGHT = 100
+  const GAP_X = 50
+
+  sorted.forEach((node, index) => {
+    // Zig-zag layout for timeline
+    const isTop = index % 2 === 0
+    positioned.push({
+      ...node,
+      position: {
+        x: index * (NODE_WIDTH + GAP_X),
+        y: isTop ? 0 : 200
+      }
+    })
+  })
+
+  return positioned
+}
+
+function toFlowNodes(nodes, filter, extraFilter, visualMode = 'default') {
   if (!nodes || nodes.length === 0) {
     console.log('No nodes to display')
     return []
   }
-  
+
   console.log(`Creating nodes: ${nodes.length} total, filter: ${filter}`)
-  
+
   let filtered = nodes
   if (filter !== 'all') {
     filtered = nodes.filter(n => n.type === filter)
@@ -62,31 +89,56 @@ function toFlowNodes(nodes, filter, extraFilter) {
   if (extraFilter) {
     filtered = filtered.filter(extraFilter)
   }
-  
-  const positioned = createSimpleGridLayout(filtered)
+
+  let positioned
+  if (visualMode === 'timeline') {
+    positioned = createTimelineLayout(filtered)
+  } else {
+    positioned = createSimpleGridLayout(filtered)
+  }
   console.log(`Positioned ${positioned.length} nodes`)
-  
+
   return positioned.map((n, i) => {
-    const isPerson = n.type === 'person'
-    
+    // Visual Reasoning Status Colors
+    let bg = TYPE_COLOR[n.type] || TYPE_COLOR.entity
+    let border = '1px solid #cfc7bd'
+
+    // React to UI Status (Visual Reasoning)
+    if (n.ui_status === 'critical') {
+      bg = '#fef2f2' // Red
+      border = '2px solid #ef4444'
+    } else if (n.ui_status === 'conflict') {
+      bg = '#fff7ed' // Orange
+      border = '2px solid #f97316'
+    } else if (n.ui_status === 'warning') {
+      bg = '#fffbeb' // Yellow
+      border = '2px solid #f59e0b'
+    } else if (n.ui_status === 'updated') {
+      bg = '#eff6ff' // Blue
+      border = '2px solid #3b82f6'
+    } else if (n.ui_status === 'healthy') {
+      bg = '#f0fdf4' // Green
+      border = '2px solid #22c55e'
+    }
+
     return {
       id: String(n.id),
-      data: { 
-        label: n.label ?? n.id, 
+      data: {
+        label: n.label ?? n.id,
         type: n.type
       },
       position: n.position,
       style: {
-        background: TYPE_COLOR[n.type] || TYPE_COLOR.entity,
+        background: bg,
+        border: border,
         color: '#2b2a28',
         borderRadius: '12px',
         padding: '16px 20px',
         fontWeight: 600,
         fontSize: 13,
-        border: '1px solid #cfc7bd',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        width: '200px',  // Fixed width
-        height: '80px',  // Fixed height
+        width: '200px', // Fixed width
+        height: '80px', // Fixed height
         textAlign: 'center',
         cursor: 'pointer',
         display: 'flex',
@@ -102,7 +154,7 @@ function toFlowNodes(nodes, filter, extraFilter) {
 
 function toFlowEdges(edges, nodesIndex) {
   if (!edges || edges.length === 0) return []
-  
+
   return edges.map((e, i) => ({
     id: e.id || `e-${i}`,
     source: String(e.source),
@@ -110,8 +162,8 @@ function toFlowEdges(edges, nodesIndex) {
     label: e.relation_type,
     type: 'smoothstep',
     animated: e.relation_type === 'made_by',
-    style: { 
-      stroke: '#b7aea4', 
+    style: {
+      stroke: '#b7aea4',
       strokeWidth: 2,
     },
     labelStyle: {
@@ -123,7 +175,7 @@ function toFlowEdges(edges, nodesIndex) {
   }))
 }
 
-function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter }) {
+function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter, visualMode = 'default' }) {
   const [filter, setFilter] = useState('all')
   const [hovered, setHovered] = useState(null)
   const [nodes, setNodes, onNodesChange] = useNodesState([])
@@ -139,7 +191,7 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
     })
     return counts
   }, [data?.nodes])
-  
+
   const connected = useMemo(() => {
     if (!hovered) return new Set()
     const set = new Set([hovered])
@@ -154,14 +206,14 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
 
   useEffect(() => {
     console.log('Data updated:', data)
-    const nf = toFlowNodes(data.nodes || [], filter, extraFilter)
+    const nf = toFlowNodes(data.nodes || [], filter, extraFilter, visualMode)
     const idSet = new Set(nf.map((n) => n.id))
     const ef = toFlowEdges(data.edges || [], idSet)
-    
+
     console.log(`Setting ${nf.length} nodes and ${ef.length} edges`)
     setNodes(nf)
     setEdges(ef)
-  }, [data.nodes, data.edges, filter, extraFilter, setNodes, setEdges, fitView])
+  }, [data.nodes, data.edges, filter, extraFilter, visualMode, setNodes, setEdges, fitView])
 
   useEffect(() => {
     if (!nodes.length) return
@@ -194,8 +246,8 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
       style: {
         ...n.style,
         opacity: isConnected ? 1 : 0.3,
-        boxShadow: isSelected 
-          ? '0 8px 24px rgba(59,130,246,0.4), 0 0 0 3px rgba(59,130,246,0.3)' 
+        boxShadow: isSelected
+          ? '0 8px 24px rgba(59,130,246,0.4), 0 0 0 3px rgba(59,130,246,0.3)'
           : n.style.boxShadow,
         zIndex: isSelected ? 1000 : 1,
       },
@@ -227,26 +279,26 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
   return (
     <div className="graph-wrap">
       <div className="graph-controls">
-        <button 
-          className={`chip ${filter === 'all' ? 'active' : ''}`} 
+        <button
+          className={`chip ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
         >
           🏢 All ({data.nodes?.length || 0})
         </button>
-        <button 
-          className={`chip ${filter === 'person' ? 'active' : ''}`} 
+        <button
+          className={`chip ${filter === 'person' ? 'active' : ''}`}
           onClick={() => setFilter('person')}
         >
           👥 People ({typeCounts.person})
         </button>
-        <button 
-          className={`chip ${filter === 'decision' ? 'active' : ''}`} 
+        <button
+          className={`chip ${filter === 'decision' ? 'active' : ''}`}
           onClick={() => setFilter('decision')}
         >
           📋 Decisions ({typeCounts.decision})
         </button>
-        <button 
-          className={`chip ${filter === 'topic' ? 'active' : ''}`} 
+        <button
+          className={`chip ${filter === 'topic' ? 'active' : ''}`}
           onClick={() => setFilter('topic')}
         >
           💡 Topics ({typeCounts.topic})
@@ -258,7 +310,7 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
           🔍 Fit View
         </button>
       </div>
-      
+
       <div className="graph-canvas">
         <ReactFlow
           nodes={styledNodes}
@@ -274,7 +326,7 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
           maxZoom={2}
         >
           <Controls showInteractive={false} />
-          <MiniMap 
+          <MiniMap
             nodeColor={(n) => n.style?.background || '#94a3b8'}
             maskColor="rgba(43, 42, 40, 0.05)"
             style={{
@@ -283,21 +335,21 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
               borderRadius: '12px',
             }}
           />
-          <Background 
-            variant="dots" 
-            gap={25} 
-            size={1.5} 
-            color="#d9d2c8" 
+          <Background
+            variant="dots"
+            gap={25}
+            size={1.5}
+            color="#d9d2c8"
           />
         </ReactFlow>
       </div>
-      
+
       {nodes.length === 0 && (
         <div className="graph-debug">
           <p>Debug: {data.nodes?.length || 0} nodes in data, filter: {filter}</p>
         </div>
       )}
-      
+
       {selectedNode && (
         <NodeDetailPanel
           node={selectedNode}

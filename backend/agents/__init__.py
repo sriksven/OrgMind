@@ -5,6 +5,7 @@ from .memory_agent import MemoryAgent
 from .router_agent import RouterAgent
 from .critic_agent import CriticAgent
 from .coordinator import Coordinator
+from .intelligence_agent import IntelligenceAgent
 
 __all__ = [
     "BaseAgent",
@@ -12,4 +13,5 @@ __all__ = [
     "RouterAgent",
     "CriticAgent",
     "Coordinator",
+    "IntelligenceAgent",
 ]

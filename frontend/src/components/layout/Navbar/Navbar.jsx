@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function Navbar({ 
-  agentStatus, 
-  agentLoading, 
-  simpleMode, 
+export default function Navbar({
+  agentStatus,
+  agentLoading,
+  simpleMode,
   onToggleMode,
   stats,
-  health 
+  health
 }) {
   const [showAgents, setShowAgents] = useState(false)
-  
+
   const agentData = [
     {
       id: 'memory',
@@ -48,18 +48,28 @@ export default function Navbar({
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        {/* Left: Logo and Title */}
+        {/* Left: Logo and AI Activity */}
         <div className="navbar-left">
           <div className="navbar-logo">
             <span className="logo-icon">🧠</span>
             <span className="logo-text">OrgMind</span>
           </div>
+
+          <button
+            className="navbar-button"
+            onClick={() => setShowAgents(!showAgents)}
+            title={showAgents ? "Hide AI Activity" : "Show AI Activity"}
+          >
+            <span className="button-icon">🤖</span>
+            <span className="button-text">AI Activity</span>
+            <span className={`chevron ${showAgents ? 'open' : ''}`}>▼</span>
+          </button>
         </div>
 
-        {/* Center: Stats */}
-        <div className="navbar-center">
-          <button 
-            className="navbar-stats"
+        {/* Right: Stats and Actions */}
+        <div className="navbar-right">
+          <button
+            className="navbar-stats compact"
             onClick={() => setShowAgents(!showAgents)}
             title="View AI Assistants"
           >
@@ -79,21 +89,8 @@ export default function Navbar({
               <span className="stat-label">Links</span>
             </div>
           </button>
-        </div>
 
-        {/* Right: Actions */}
-        <div className="navbar-right">
-          <button 
-            className="navbar-button"
-            onClick={() => setShowAgents(!showAgents)}
-            title={showAgents ? "Hide AI Activity" : "Show AI Activity"}
-          >
-            <span className="button-icon">🤖</span>
-            <span className="button-text">AI Activity</span>
-            <span className={`chevron ${showAgents ? 'open' : ''}`}>▼</span>
-          </button>
-          
-          <button 
+          <button
             className="navbar-button mode-toggle"
             onClick={onToggleMode}
             title={simpleMode ? "Switch to Advanced Mode" : "Switch to Simple Mode"}
@@ -113,36 +110,15 @@ export default function Navbar({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* What's Happening Section */}
-            {simpleMode && (
-              <div className="navbar-happening">
-                <h3>What's Happening?</h3>
-                <div className="happening-cards">
-                  <div className="happening-card">
-                    <strong>{stats?.peopleCount || 0} People & Teams</strong>
-                    <p>Everyone in your organization is mapped</p>
-                  </div>
-                  <div className="happening-card">
-                    <strong>{stats?.decisionsCount || 0} Decisions</strong>
-                    <p>Important choices are tracked automatically</p>
-                  </div>
-                  <div className="happening-card">
-                    <strong>AI is Working</strong>
-                    <p>The AI watches for conflicts and knows who needs to know what</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Agent Grid */}
             <div className="agent-grid">
               {agentData.map((agent) => {
                 const info = getAgentInfo(agent.id)
                 const active = isActive(agent.id)
-                
+
                 return (
-                  <div 
-                    key={agent.id} 
+                  <div
+                    key={agent.id}
                     className={`agent-card-compact ${agent.id}`}
                     style={{ '--agent-color': agent.color }}
                   >
@@ -156,7 +132,7 @@ export default function Navbar({
                         {active ? 'ACTIVE' : 'IDLE'}
                       </span>
                     </div>
-                    
+
                     {info && simpleMode && (
                       <div className="agent-stats-compact">
                         <div>

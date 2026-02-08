@@ -1,19 +1,17 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import Navbar from './components/layout/Navbar/Navbar'
-import CommandBar from './components/features/CommandBar/CommandBar'
 import QueryResponse from './components/features/QueryResponse/QueryResponse'
 import ErrorBoundary from './components/ErrorBoundary'
 import { SkeletonCard } from './components/Skeleton'
-import { getDemoScenarios, runDemoScenario, queryKnowledge, getHealth, getStats } from './services/api'
+import { getDemoScenarios, runDemoScenario, getHealth, getStats, agentProcess } from './services/api'
 import { useGraph } from './hooks/useGraph'
 import { useAgents } from './hooks/useAgents'
 import Sidebar from './components/layout/Sidebar/Sidebar'
+import NavigationTabs from './components/layout/NavigationTabs/NavigationTabs'
 import CommandCenter from './pages/CommandCenter'
 import OrganizationBrain from './pages/OrganizationBrain'
-import AskOrganization from './pages/AskOrganization'
 import './styles/App.css'
 import './components/layout/Navbar/Navbar.css'
-import './components/features/CommandBar/CommandBar.css'
 import './components/features/QueryResponse/QueryResponse.css'
 
 function App() {
@@ -31,7 +29,7 @@ function App() {
   const [simpleMode, setSimpleMode] = useState(true)
   const [commandQuery, setCommandQuery] = useState(null)
   const [showQueryResponse, setShowQueryResponse] = useState(false) // Toggle between simple/advanced
-  const [activePage, setActivePage] = useState('command-center')
+  const [activePage, setActivePage] = useState('command-center') // 'command-center' or 'organization-brain'
 
   const refreshStats = useCallback(async () => {
     try {
@@ -49,7 +47,7 @@ function App() {
       .then(setScenarios)
       .catch((e) => setErrorBanner(e.message))
       .finally(() => setScenariosLoading(false))
-    getHealth().then(setHealth).catch(() => {})
+    getHealth().then(setHealth).catch(() => { })
     refreshStats()
     const id = setInterval(() => refreshStats(), 30000)
     return () => clearInterval(id)
@@ -63,7 +61,7 @@ function App() {
     const nodes = graph.nodes || []
     const peopleCount = nodes.filter((n) => n.type === 'person').length
     const decisionsCount = nodes.filter((n) => n.type === 'decision').length
-    
+
     return {
       nodeCount,
       edgeCount,
@@ -76,6 +74,7 @@ function App() {
     }
   }, [graph, lastUpdated])
 
+  // eslint-disable-next-line no-unused-vars
   async function handleRunScenario(id) {
     setProcessing(true)
     setErrorBanner('')
@@ -97,20 +96,32 @@ function App() {
     setProcessing(true)
     setErrorBanner('')
     try {
-      const res = await queryKnowledge(question)
-      setQueryResult(res)
+      // Use the new Intelligence Agent for all queries
+      const res = await agentProcess({
+        intent: 'intelligence',
+        query: question,
+        context: { role: 'user' }
+      })
+
+
+      // The result wrapper contains the actual data in res.result
+      setQueryResult(res.result)
+
       if (options.showModal !== false) {
-        setCommandQuery(res)
+        setCommandQuery(res.result)
         setShowQueryResponse(true)
       } else {
         setShowQueryResponse(false)
       }
-      if (res?.memory?.status === 'updated' || res?.memory?.nodes_added > 0 || res?.memory?.edges_added > 0) {
+
+      // Refresh logic (checking for graph updates if applicable)
+      if (res.result?.memory?.status === 'updated' || res.result?.visual_reasoning) {
         await refreshGraph()
       }
       await refreshAgents()
       await refreshStats()
     } catch (e) {
+      console.error("Query failed", e)
       setErrorBanner(e.message)
     } finally {
       setProcessing(false)
@@ -121,9 +132,14 @@ function App() {
     await handleQuery(question, { showModal: true })
   }
 
+  async function handleSidebarQuery(question) {
+    // Search from sidebar -> Show result IN sidebar (no modal)
+    await handleQuery(question, { showModal: false })
+  }
+
   return (
     <div className="app-shell">
-      <Navbar 
+      <Navbar
         agentStatus={agentStatus}
         agentLoading={agentLoading}
         simpleMode={simpleMode}
@@ -132,62 +148,55 @@ function App() {
         health={health}
       />
 
-      {/* Command Bar - Always accessible */}
-      <CommandBar 
-        onQuery={handleCommandQuery}
-        isProcessing={processing}
-      />
-
       {/* Query Response Modal */}
       {showQueryResponse && commandQuery && (
-        <QueryResponse 
+        <QueryResponse
           result={commandQuery}
           onClose={() => setShowQueryResponse(false)}
         />
       )}
-      <div className="app-body">
-        <Sidebar activePage={activePage} onNavigate={setActivePage} />
-        <main className="app-main">
-          {errorBanner && (
-            <div className="error-banner">
-              <span>{errorBanner}</span>
-              <button className="btn secondary" onClick={() => { loadGraph(); refreshAgents(); refreshStats() }}>Retry</button>
-            </div>
-          )}
 
-          {activePage === 'command-center' && (
+      <div className="app-body three-col">
+        {/* Col 1: Sidebar (1/4) */}
+        <div className="col-sidebar">
+          <Sidebar
+            activePage="all"
+            onNavigate={() => { }}
+            onQuery={handleSidebarQuery}
+            processing={processing}
+            queryResult={queryResult}
+          />
+        </div>
+
+        {/* Col 2: Situation Brief / Command Center (Center) */}
+        {/* Col 2: Knowledge Graph (Center - Focus) */}
+        <div className="col-center">
+          <ErrorBoundary onRetry={refreshGraph}>
+            <Suspense fallback={<div className="suspense-fallback"><SkeletonCard /></div>}>
+              <OrganizationBrain
+                graph={graph}
+                loading={graphLoading}
+                selectedNode={selectedNode}
+                onSelectNode={setSelectedNode}
+                visualReasoning={queryResult?.visual_reasoning} // Pass intelligence graph
+                onClearIntelligence={() => setQueryResult(null)} // Allow clearing
+              />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+
+        {/* Col 3: Situation Brief (Right - Context) */}
+        <div className="col-right">
+          <ErrorBoundary onRetry={() => { refreshAgents(); refreshStats() }}>
             <CommandCenter
               graph={graph}
               graphMeta={stats}
               statsApi={runtimeStats}
               agentStatus={agentStatus}
-              onQuery={handleQuery}
-              queryResult={queryResult}
-              processing={processing}
+              queryResult={queryResult} // Pass rich intelligence
             />
-          )}
-
-          {activePage === 'organization-brain' && (
-            <ErrorBoundary onRetry={refreshGraph}>
-              <Suspense fallback={<div className="suspense-fallback"><SkeletonCard /></div>}>
-                <OrganizationBrain
-                  graph={graph}
-                  loading={graphLoading}
-                  selectedNode={selectedNode}
-                  onSelectNode={setSelectedNode}
-                />
-              </Suspense>
-            </ErrorBoundary>
-          )}
-
-          {activePage === 'ask-organization' && (
-            <AskOrganization
-              onQuery={handleQuery}
-              queryResult={queryResult}
-              processing={processing}
-            />
-          )}
-        </main>
+          </ErrorBoundary>
+        </div>
       </div>
     </div>
   )

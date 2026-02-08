@@ -7,6 +7,7 @@ from .base_agent import BaseAgent
 from .memory_agent import MemoryAgent
 from .router_agent import RouterAgent
 from .critic_agent import CriticAgent
+from .intelligence_agent import IntelligenceAgent
 from knowledge_graph import GraphBuilder
 from typing import Any
 
@@ -25,11 +26,13 @@ class Coordinator(BaseAgent):
         self.router = RouterAgent(graph=graph, config=config)
         self.memory = MemoryAgent(graph=graph, config=config)
         self.critic = CriticAgent(graph=graph, config=config)
+        self.intelligence = IntelligenceAgent(graph=graph, config=config)
         self.execution_log: list[dict[str, Any]] = []
         self._agents: dict[str, BaseAgent] = {
             "router": self.router,
             "memory": self.memory,
             "critic": self.critic,
+            "intelligence": self.intelligence,
         }
 
     async def process_new_information(self, info: dict[str, Any]) -> dict[str, Any]:
@@ -89,6 +92,9 @@ class Coordinator(BaseAgent):
         # Treat payloads with 'content' as new information unless explicitly intent-routed.
         if "content" in input_data and "intent" not in input_data:
             return await self.process_new_information(input_data)
+            
+        if input_data.get("intent") == "intelligence":
+            return await self.intelligence.process(input_data)
 
         route_result = await self.router.process(input_data)
         target = route_result.get("target_agent", "memory")

@@ -7,6 +7,7 @@ from .base_agent import BaseAgent
 from .memory_agent import MemoryAgent
 from .router_agent import RouterAgent
 from .critic_agent import CriticAgent
+from .intelligence_agent import IntelligenceAgent
 from knowledge_graph import GraphBuilder
 from typing import Any
 
@@ -25,11 +26,13 @@ class Coordinator(BaseAgent):
         self.router = RouterAgent(graph=graph, config=config)
         self.memory = MemoryAgent(graph=graph, config=config)
         self.critic = CriticAgent(graph=graph, config=config)
+        self.intelligence = IntelligenceAgent(name="intelligence", config=config, memory=self.memory)
         self.execution_log: list[dict[str, Any]] = []
         self._agents: dict[str, BaseAgent] = {
             "router": self.router,
             "memory": self.memory,
             "critic": self.critic,
+            "intelligence": self.intelligence,
         }
 
     async def process_new_information(self, info: dict[str, Any]) -> dict[str, Any]:
@@ -76,6 +79,7 @@ class Coordinator(BaseAgent):
                 "critic": {"capabilities": self.critic.get_capabilities(), "recent_reasoning": self.critic.get_recent_reasoning()},
                 "memory": {"capabilities": self.memory.get_capabilities(), "recent_reasoning": self.memory.get_recent_reasoning()},
                 "router": {"capabilities": self.router.get_capabilities(), "recent_reasoning": self.router.get_recent_reasoning()},
+                "intelligence": {"capabilities": self.intelligence.get_capabilities(), "recent_reasoning": self.intelligence.get_recent_reasoning()},
             },
             "graph": self.memory.get_graph_state(),
             "recent_executions": self.execution_log[-10:],
@@ -85,6 +89,11 @@ class Coordinator(BaseAgent):
         """Dispatch for API: either process new info, return status, or run legacy intent routing."""
         if input_data.get("intent") == "status":
             return {"status": self.get_agent_status()}
+
+        # Direct routing for intelligence queries
+        if input_data.get("intent") == "intelligence":
+            result = await self.intelligence.process(input_data)
+            return {"coordinator": True, "target": "intelligence", "result": result}
 
         # Treat payloads with 'content' as new information unless explicitly intent-routed.
         if "content" in input_data and "intent" not in input_data:

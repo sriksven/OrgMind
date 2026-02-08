@@ -102,6 +102,22 @@ async def lifespan(app: FastAPI):
     # Seed a baseline fact for demo scenario #2 (budget conflict).
     graph_builder.add_decision("Q2 budget finalized at $3.5M", content="Q2 budget finalized at $3.5M", date="")
 
+    # Seed 'Who is blocked?' scenario data
+    # Payments
+    graph_builder.add_entity("Payments Team", "Payments Team", {"type": "team"})
+    graph_builder.add_entity("Identity API", "Identity API", {"type": "dependency"})
+    graph_builder.add_relation("Payments Team", "Identity API", "blocked_by")
+
+    # Sales
+    graph_builder.add_entity("Sales", "Sales", {"type": "team"})
+    graph_builder.add_decision("Pricing Decision", content="Pricing v2 rollout pending approval", date="2023-10-25")
+    graph_builder.add_relation("Sales", "Pricing Decision", "waiting_for")
+
+    # Support
+    graph_builder.add_entity("Customer Support", "Customer Support", {"type": "team"})
+    graph_builder.add_topic("SLA Docs")
+    graph_builder.add_relation("Customer Support", "SLA Docs", "needs_update")
+
     _export_graph_cached(app)
     stats = graph_builder.get_stats()
     logger.info(
