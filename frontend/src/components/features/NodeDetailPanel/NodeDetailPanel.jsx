@@ -308,41 +308,73 @@ function ConnectionsTab({ connections, onNavigate }) {
 function KnowledgeTab({ node, connections }) {
   const topics = connections.filter(c => c.targetType === 'topic')
   const decisions = connections.filter(c => c.targetType === 'decision')
+  const knowledgeScore = Math.min(100, topics.length * 10 + decisions.length * 5)
   
   return (
     <div className="knowledge-content">
-      <div className="knowledge-section">
-        <h3>💡 Topics ({topics.length})</h3>
-        <div className="topic-tags">
-          {topics.map((topic, i) => (
-            <span key={i} className="topic-tag">{topic.targetLabel}</span>
-          ))}
+      {/* Knowledge Score Card - Featured */}
+      <div className="knowledge-score-card">
+        <div className="score-header">
+          <h3>Knowledge Score</h3>
+          <div className="score-badge">{knowledgeScore}/100</div>
         </div>
+        <div className="score-bar">
+          <div 
+            className="score-fill" 
+            style={{ 
+              width: `${knowledgeScore}%`,
+              background: knowledgeScore >= 70 ? '#16A34A' : knowledgeScore >= 40 ? '#D97706' : '#DC2626'
+            }}
+          />
+        </div>
+        <p className="score-description">Based on {topics.length + decisions.length} data points</p>
       </div>
 
+      {/* Topics Section */}
       <div className="knowledge-section">
-        <h3>📋 Decisions ({decisions.length})</h3>
-        <div className="decision-timeline">
-          {decisions.map((decision, i) => (
-            <div key={i} className="timeline-item">
-              <div className="timeline-dot"></div>
-              <div className="timeline-content">
-                <div className="timeline-title">{decision.targetLabel}</div>
-                <div className="timeline-meta">via {decision.relation}</div>
+        <div className="section-header">
+          <h3>Topics</h3>
+          <span className="count-badge">{topics.length}</span>
+        </div>
+        {topics.length > 0 ? (
+          <div className="topic-grid">
+            {topics.map((topic, i) => (
+              <div key={i} className="topic-card">
+                <span className="topic-icon">💡</span>
+                <span className="topic-label">{topic.targetLabel}</span>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>No topics tracked yet</p>
+          </div>
+        )}
       </div>
 
+      {/* Decisions Section */}
       <div className="knowledge-section">
-        <h3>📊 Knowledge Score</h3>
-        <div className="knowledge-score">
-          <div className="score-circle">
-            <div className="score-value">{Math.min(100, topics.length * 10 + decisions.length * 5)}</div>
-          </div>
-          <p>Based on {topics.length + decisions.length} data points</p>
+        <div className="section-header">
+          <h3>Decisions</h3>
+          <span className="count-badge">{decisions.length}</span>
         </div>
+        {decisions.length > 0 ? (
+          <div className="decision-list-enhanced">
+            {decisions.map((decision, i) => (
+              <div key={i} className="decision-card">
+                <div className="decision-icon">📋</div>
+                <div className="decision-info">
+                  <div className="decision-title">{decision.targetLabel}</div>
+                  <div className="decision-relation">{decision.relation}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>No decisions linked</p>
+          </div>
+        )}
       </div>
     </div>
   )
