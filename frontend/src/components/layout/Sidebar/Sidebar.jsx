@@ -36,26 +36,35 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
 
     try {
       setIsPlaying(true);
-      const response = await fetch('http://localhost:8000/tts', {
+      // Use 127.0.0.1 to avoid localhost resolution issues on some systems
+      const response = await fetch('http://127.0.0.1:8000/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: text.substring(0, 1000) }) // Limit length for demo
       });
 
-      if (!response.ok) throw new Error("TTS failed");
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(`TTS failed: ${err}`);
+      }
 
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
 
       audio.onended = () => setIsPlaying(false);
-      audio.onerror = () => setIsPlaying(false);
+      audio.onerror = (e) => {
+        console.error("Audio playback error", e);
+        setIsPlaying(false);
+        alert("Audio playback failed. Format not supported?");
+      };
 
       audioRef.current = audio;
       audio.play();
     } catch (e) {
       console.error("Audio playback error:", e);
       setIsPlaying(false);
+      alert(`Voice Error: ${e.message}. Is the backend running?`);
     }
   };
 
