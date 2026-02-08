@@ -107,6 +107,12 @@ function App() {
       // The result wrapper contains the actual data in res.result
       setQueryResult(res.result)
 
+      // Auto-detect and focus on mentioned entities
+      const mentionedNode = detectMentionedEntity(question, graph.nodes)
+      if (mentionedNode) {
+        setSelectedNode(mentionedNode)
+      }
+
       if (options.showModal !== false) {
         setCommandQuery(res.result)
         setShowQueryResponse(true)
@@ -126,6 +132,75 @@ function App() {
     } finally {
       setProcessing(false)
     }
+  }
+
+  // Helper function to detect if query mentions a specific entity
+  function detectMentionedEntity(query, nodes) {
+    if (!query || !nodes || nodes.length === 0) return null
+    
+    const queryLower = query.toLowerCase()
+    
+    // Extract potential entity mentions using common patterns
+    const patterns = [
+      /(?:about|for|with|by|from|regarding)\s+([a-zA-Z][a-zA-Z0-9\s-]{2,30})/i,
+      /^([a-zA-Z][a-zA-Z0-9\s-]{2,30})(?:\?|'s|is|has|does)/i,
+      /(?:who is|what is|tell me about|show me|info on|information about)\s+([a-zA-Z][a-zA-Z0-9\s-]{2,30})/i,
+    ]
+    
+    // Try to extract entity name from query patterns
+    let extractedName = null
+    for (const pattern of patterns) {
+      const match = query.match(pattern)
+      if (match && match[1]) {
+        extractedName = match[1].trim().toLowerCase()
+        break
+      }
+    }
+    
+    // Find node by exact or partial label match
+    const matchedNode = nodes.find(node => {
+      const label = (node.label || node.id || '').toLowerCase()
+      const id = (node.id || '').toLowerCase()
+      
+      // If we extracted a name, check for match
+      if (extractedName && (
+        label.includes(extractedName) || 
+        extractedName.includes(label) ||
+        id.includes(extractedName)
+      )) {
+        return true
+      }
+      
+      // Check if query contains the full label/id
+      if (queryLower.includes(label) && label.length > 3) return true
+      if (queryLower.includes(id) && id.length > 3) return true
+      
+      // Check for name parts (e.g., "Lauren" from "Lauren Evans")
+      const nameParts = label.split(/[\s-_]+/)
+      if (nameParts.length > 1) {
+        // Check if query contains any significant name part (> 3 chars)
+        return nameParts.some(part => 
+          part.length > 3 && queryLower.includes(part.toLowerCase())
+        )
+      }
+      
+      return false
+    })
+    
+    if (matchedNode) {
+      // Convert to ReactFlow node format
+      return {
+        id: String(matchedNode.id),
+        data: {
+          label: matchedNode.label || matchedNode.id,
+          type: matchedNode.type
+        },
+        // Position will be set by the layout algorithm
+        position: { x: 0, y: 0 }
+      }
+    }
+    
+    return null
   }
 
   async function handleCommandQuery(question) {
