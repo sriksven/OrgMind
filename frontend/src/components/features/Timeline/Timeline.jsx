@@ -29,7 +29,7 @@ export default function Timeline({ graph, queryResult }) {
         timelineEvents.push({
           id: `blocker-${idx}`,
           type: 'blocker',
-          title: blocker.subject,
+          title: blocker.subject || blocker.label || blocker.detail || "Unknown Blocker",
           timestamp: new Date(Date.now() - (idx * 3600000)), // Stagger by hours
           icon: 'B',
           color: '#ef4444',

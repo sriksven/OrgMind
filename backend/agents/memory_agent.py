@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from uuid import uuid4
 from .base_agent import BaseAgent
 from knowledge_graph import GraphBuilder
 from typing import Any
@@ -90,6 +91,22 @@ class MemoryAgent(BaseAgent):
                         self._graph.add_person(s.strip(), name=s.strip())
                         self._graph.add_impact_edge(did, pid)
                         edges_added += 1
+
+        # Always capture the source event as a node to ensure Timeline persistence
+        # (even if no decision was extracted).
+        if content.strip():
+            event_id = f"event:{uuid4().hex}"
+            event_label = (new_info.get("metadata", {}) or {}).get("subject") or f"{content[:30]}..."
+            self._graph.add_entity(
+                event_id,
+                label=event_label,
+                props={
+                    "type": new_info.get("type", "event"),
+                    "date": new_info.get("date", "") or datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    "content": content,
+                },
+            )
+            nodes_added += 1
 
         self._version += 1
         self._last_update_ts = datetime.now(timezone.utc).isoformat()
