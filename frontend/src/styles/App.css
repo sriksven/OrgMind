@@ -785,11 +785,11 @@
 /* 3-Column Layout */
 .app-body.three-col {
   display: grid;
-  grid-template-columns: 380px 820px 520px;
-  /* Sidebar | Graph | Situation Brief (expanded) */
+  grid-template-columns: 380px 1fr 380px;
+  /* Equal width sidebars | Flexible graph center | Equal width right panel */
   gap: 20px;
-  max-width: 1760px;
-  /* Limit max width as requested */
+  max-width: 1920px;
+  /* Allow more width for expanded center */
   margin: 0 auto;
   padding: 1.5rem 24px;
   height: calc(100vh - 72px);
@@ -800,7 +800,7 @@
   /* Center the grid */
 }
 
-/* Column Wrappers */
+/* Column Wrappers - All Equal Height */
 .col-sidebar,
 .col-center,
 .col-right {
@@ -812,8 +812,8 @@
 /* Sidebar adjustments for column */
 .col-sidebar .sidebar-ask {
   height: 100%;
-  min-height: auto;
-  max-height: none;
+  min-height: 100%;
+  max-height: 100%;
   box-shadow: none;
   /* Optional: remove shadow if inside container */
   position: static;
@@ -862,15 +862,15 @@
 /* Responsive fallback */
 @media (max-width: 1760px) {
   .app-body.three-col {
-    grid-template-columns: 360px 1fr 480px;
-    /* Fixed sidebars, flexible center */
+    grid-template-columns: 360px 1fr 360px;
+    /* Equal sidebars, flexible center */
   }
 }
 
 @media (max-width: 1400px) {
   .app-body.three-col {
-    grid-template-columns: 320px 1fr 440px;
-    /* Smaller fixed sidebars */
+    grid-template-columns: 320px 1fr 320px;
+    /* Smaller equal sidebars */
   }
 }
 
