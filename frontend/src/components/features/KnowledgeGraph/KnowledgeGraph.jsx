@@ -15,43 +15,48 @@ import '../NodeDetailPanel/NodeDetailPanel.css'
 
 const TYPE_STYLE = {
   person: { 
-    base: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    glow: 'rgba(102, 126, 234, 0.4)',
-    shadow: '0 10px 40px -10px rgba(102, 126, 234, 0.5)',
+    base: '#5B6B8C',
+    border: '#44516B',
+    hover: '#3A5064',
+    text: '#FFFFFF',
     icon: '👤'
   },
   decision: { 
-    base: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    glow: 'rgba(245, 87, 108, 0.4)',
-    shadow: '0 10px 40px -10px rgba(245, 87, 108, 0.5)',
+    base: '#6B7B9C',
+    border: '#545F7B',
+    hover: '#4A5570',
+    text: '#FFFFFF',
     icon: '📋'
   },
   topic: { 
-    base: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    glow: 'rgba(0, 242, 254, 0.4)',
-    shadow: '0 10px 40px -10px rgba(79, 172, 254, 0.5)',
+    base: '#4F6D8A',
+    border: '#3E566E',
+    hover: '#3A5064',
+    text: '#FFFFFF',
     icon: '💡'
   },
   event: { 
-    base: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    glow: 'rgba(67, 233, 123, 0.4)',
-    shadow: '0 10px 40px -10px rgba(67, 233, 123, 0.5)',
+    base: '#5A7A95',
+    border: '#4A6580',
+    hover: '#405570',
+    text: '#FFFFFF',
     icon: '📅'
   },
   entity: { 
-    base: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    glow: 'rgba(250, 112, 154, 0.4)',
-    shadow: '0 10px 40px -10px rgba(250, 112, 154, 0.5)',
+    base: '#687888',
+    border: '#566675',
+    hover: '#4C5B68',
+    text: '#FFFFFF',
     icon: '📦'
   },
 }
 
 function edgeColor(relationType) {
   const rel = String(relationType || '').toLowerCase()
-  if (rel.includes('block') || rel.includes('risk') || rel.includes('conflict')) return '#f5576c'
-  if (rel.includes('depend') || rel.includes('needs')) return '#f093fb'
-  if (rel.includes('own') || rel.includes('lead') || rel.includes('made_by')) return '#667eea'
-  return '#4facfe'
+  if (rel.includes('block') || rel.includes('risk') || rel.includes('conflict')) return '#EF4444'
+  if (rel.includes('depend') || rel.includes('needs')) return '#F59E0B'
+  if (rel.includes('own') || rel.includes('lead') || rel.includes('made_by')) return '#3B82F6'
+  return '#CBD5E1'
 }
 
 // SIMPLE grid layout with generous spacing - NO OVERLAP
@@ -132,29 +137,33 @@ function toFlowNodes(nodes, filter, extraFilter, visualMode = 'default') {
   console.log(`Positioned ${positioned.length} nodes`)
 
   return positioned.map((n, i) => {
-    // Modern Visual Design with Vibrant Gradients
+    // Professional Enterprise Design - Calm & Clean
     const typeStyle = TYPE_STYLE[n.type] || TYPE_STYLE.entity
     let bg = typeStyle.base
-    let boxShadow = typeStyle.shadow
-    let border = 'none'
-    let transform = 'translateY(0)'
+    let border = `2px solid ${typeStyle.border}`
+    let boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)'
 
-    // Enhanced status indicators with glowing effects
+    // Subtle status indicators - professional, not flashy
     if (n.ui_status === 'critical') {
-      bg = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)'
-      boxShadow = '0 10px 40px -10px rgba(238, 90, 111, 0.6), 0 0 0 3px rgba(238, 90, 111, 0.2)'
+      bg = '#DC2626'
+      border = '2px solid #B91C1C'
+      boxShadow = '0 2px 12px rgba(220, 38, 38, 0.2)'
     } else if (n.ui_status === 'conflict') {
-      bg = 'linear-gradient(135deg, #ffa502 0%, #ff6348 100%)'
-      boxShadow = '0 10px 40px -10px rgba(255, 99, 72, 0.6), 0 0 0 3px rgba(255, 99, 72, 0.2)'
+      bg = '#EA580C'
+      border = '2px solid #C2410C'
+      boxShadow = '0 2px 12px rgba(234, 88, 12, 0.2)'
     } else if (n.ui_status === 'warning') {
-      bg = 'linear-gradient(135deg, #feca57 0%, #ff9ff3 100%)'
-      boxShadow = '0 10px 40px -10px rgba(254, 202, 87, 0.6), 0 0 0 3px rgba(254, 202, 87, 0.2)'
+      bg = '#D97706'
+      border = '2px solid #B45309'
+      boxShadow = '0 2px 12px rgba(217, 119, 6, 0.2)'
     } else if (n.ui_status === 'updated') {
-      bg = 'linear-gradient(135deg, #54a0ff 0%, #00d2d3 100%)'
-      boxShadow = '0 10px 40px -10px rgba(84, 160, 255, 0.6), 0 0 0 3px rgba(84, 160, 255, 0.2)'
+      bg = '#2563EB'
+      border = '2px solid #1D4ED8'
+      boxShadow = '0 2px 12px rgba(37, 99, 235, 0.2)'
     } else if (n.ui_status === 'healthy') {
-      bg = 'linear-gradient(135deg, #5f27cd 0%, #341f97 100%)'
-      boxShadow = '0 10px 40px -10px rgba(95, 39, 205, 0.6), 0 0 0 3px rgba(95, 39, 205, 0.2)'
+      bg = '#16A34A'
+      border = '2px solid #15803D'
+      boxShadow = '0 2px 12px rgba(22, 163, 74, 0.2)'
     }
 
     return {
@@ -167,11 +176,11 @@ function toFlowNodes(nodes, filter, extraFilter, visualMode = 'default') {
       style: {
         background: bg,
         border: border,
-        color: '#ffffff',
-        borderRadius: '16px',
-        padding: '20px 26px',
-        fontWeight: 700,
-        fontSize: '15px',
+        color: typeStyle.text,
+        borderRadius: '8px',
+        padding: '16px 20px',
+        fontWeight: 600,
+        fontSize: '14px',
         boxShadow: boxShadow,
         width: '240px',
         height: '100px',
@@ -183,8 +192,7 @@ function toFlowNodes(nodes, filter, extraFilter, visualMode = 'default') {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        transition: 'all 0.2s ease',
       },
     }
   })
@@ -199,25 +207,23 @@ function toFlowEdges(edges, nodesIndex) {
     target: String(e.target),
     label: e.relation_type,
     type: 'smoothstep',
-    animated: e.relation_type === 'made_by' || e.relation_type?.includes('depend'),
+    animated: false,
     style: {
       stroke: edgeColor(e.relation_type),
-      strokeWidth: 4,
-      opacity: 0.8,
-      strokeDasharray: e.relation_type?.includes('block') ? '5,5' : 'none',
+      strokeWidth: 1.5,
+      opacity: 0.7,
     },
     labelStyle: {
-      fill: '#ffffff',
-      fontSize: 12,
-      fontWeight: 700,
+      fill: '#64748B',
+      fontSize: 11,
+      fontWeight: 500,
     },
-    labelBgPadding: [8, 12],
-    labelBgBorderRadius: 20,
+    labelBgPadding: [4, 8],
+    labelBgBorderRadius: 4,
     labelBgStyle: {
-      fill: edgeColor(e.relation_type),
-      stroke: 'rgba(255, 255, 255, 0.3)',
-      strokeWidth: 2,
-      opacity: 0.95,
+      fill: '#FFFFFF',
+      stroke: '#E2E8F0',
+      strokeWidth: 1,
     },
     data: e,
     hidden: !nodesIndex.has(String(e.source)) || !nodesIndex.has(String(e.target)),
@@ -396,33 +402,31 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
             showInteractive={false}
             style={{
               button: {
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                border: 'none',
-                color: '#ffffff',
+                background: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                color: '#64748B',
               }
             }}
           />
           <MiniMap
             nodeColor={(n) => {
-              // Extract gradient color from node background
-              const bg = n.style?.background || '#667eea'
-              return bg
+              return n.style?.background || '#5B6B8C'
             }}
-            maskColor="rgba(0, 0, 0, 0.03)"
+            maskColor="rgba(0, 0, 0, 0.05)"
             style={{
-              background: 'rgba(255, 255, 255, 0.95)',
-              border: '2px solid rgba(102, 126, 234, 0.2)',
-              borderRadius: '16px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+              background: '#FFFFFF',
+              border: '1px solid #E2E8F0',
+              borderRadius: '8px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
             }}
           />
           <Background
             variant="dots"
-            gap={24}
-            size={2}
-            color="rgba(102, 126, 234, 0.15)"
+            gap={20}
+            size={1}
+            color="#CBD5E1"
             style={{
-              background: 'linear-gradient(180deg, #f8f9ff 0%, #ffffff 100%)',
+              background: '#F7F9FC',
             }}
           />
         </ReactFlow>

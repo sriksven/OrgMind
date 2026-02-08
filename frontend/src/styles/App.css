@@ -651,39 +651,41 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 50px;
-  border: none;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  padding: 0.625rem 1.25rem;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 700;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  color: #64748B;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .chip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  border-color: #CBD5E1;
+  background: #F8FAFC;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .chip.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-  transform: translateY(-2px);
+  background: #4F6D8A;
+  border-color: #3E566E;
+  color: #FFFFFF;
+  box-shadow: 0 2px 4px rgba(79, 109, 138, 0.2);
 }
 
 .chip.secondary {
-  background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
-  color: #4facfe;
+  background: #F8FAFC;
+  border-color: #E2E8F0;
+  color: #64748B;
 }
 
 .chip.secondary:hover {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: #ffffff;
+  background: #4F6D8A;
+  border-color: #3E566E;
+  color: #FFFFFF;
 }
 
 .graph-legend {
@@ -734,13 +736,11 @@
 .graph-canvas {
   height: calc(100vh - 28rem);
   min-height: 500px;
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
-  border: none;
-  background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 100%);
-  box-shadow: 
-    inset 0 2px 60px rgba(102, 126, 234, 0.08),
-    0 10px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E2E8F0;
+  background: #F7F9FC;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   position: relative;
   isolation: isolate;
 }
@@ -783,27 +783,33 @@
   color: var(--text-secondary);
 }
 
-/* ReactFlow Overrides - Dark Theme */
+/* ReactFlow Overrides - Professional Theme */
 .react-flow__node {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 }
 
 .react-flow__node:hover {
-  transform: translateY(-4px) scale(1.05);
+  transform: translateY(-2px);
   z-index: 100 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
 }
 
 .react-flow__controls {
-  background: var(--bg-secondary);
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .react-flow__controls-button {
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  color: var(--text-secondary);
+  background: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  color: #64748B;
+}
+
+.react-flow__controls-button:hover {
+  background: #F8FAFC;
+  color: #4F6D8A;
 }
 
 /* 3-Column Layout */
