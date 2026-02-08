@@ -1,19 +1,20 @@
-import { Suspense, useEffect, useMemo, useState, lazy } from 'react'
-import Dashboard from './components/features/Dashboard/Dashboard'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import Navbar from './components/layout/Navbar/Navbar'
 import CommandBar from './components/features/CommandBar/CommandBar'
 import QueryResponse from './components/features/QueryResponse/QueryResponse'
 import ErrorBoundary from './components/ErrorBoundary'
 import { SkeletonCard } from './components/Skeleton'
-import { getDemoScenarios, runDemoScenario, queryKnowledge, getHealth } from './services/api'
+import { getDemoScenarios, runDemoScenario, queryKnowledge, getHealth, getStats } from './services/api'
 import { useGraph } from './hooks/useGraph'
 import { useAgents } from './hooks/useAgents'
+import Sidebar from './components/layout/Sidebar/Sidebar'
+import CommandCenter from './pages/CommandCenter'
+import OrganizationBrain from './pages/OrganizationBrain'
+import AskOrganization from './pages/AskOrganization'
 import './styles/App.css'
 import './components/layout/Navbar/Navbar.css'
 import './components/features/CommandBar/CommandBar.css'
 import './components/features/QueryResponse/QueryResponse.css'
-
-const KnowledgeGraph = lazy(() => import('./components/features/KnowledgeGraph/KnowledgeGraph'))
 
 function App() {
   const { graph, loading: graphLoading, error: graphError, loadGraph, refreshGraph } = useGraph()
@@ -25,10 +26,21 @@ function App() {
   const [selectedNode, setSelectedNode] = useState(null)
   const [queryResult, setQueryResult] = useState(null)
   const [health, setHealth] = useState(null)
+  const [runtimeStats, setRuntimeStats] = useState(null)
   const [errorBanner, setErrorBanner] = useState('')
   const [simpleMode, setSimpleMode] = useState(true)
   const [commandQuery, setCommandQuery] = useState(null)
   const [showQueryResponse, setShowQueryResponse] = useState(false) // Toggle between simple/advanced
+  const [activePage, setActivePage] = useState('command-center')
+
+  const refreshStats = useCallback(async () => {
+    try {
+      const stats = await getStats()
+      setRuntimeStats(stats)
+    } catch (e) {
+      setErrorBanner(e.message)
+    }
+  }, [])
 
   useEffect(() => {
     loadGraph()
@@ -38,6 +50,9 @@ function App() {
       .catch((e) => setErrorBanner(e.message))
       .finally(() => setScenariosLoading(false))
     getHealth().then(setHealth).catch(() => {})
+    refreshStats()
+    const id = setInterval(() => refreshStats(), 30000)
+    return () => clearInterval(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -45,15 +60,18 @@ function App() {
     const meta = graph.metadata || {}
     const nodeCount = meta.node_count ?? (graph.nodes || []).length
     const edgeCount = meta.edge_count ?? (graph.edges || []).length
+    const nodes = graph.nodes || []
+    const peopleCount = nodes.filter((n) => n.type === 'person').length
+    const decisionsCount = nodes.filter((n) => n.type === 'decision').length
     
     return {
       nodeCount,
       edgeCount,
       version: meta.version ?? 0,
       lastUpdated: lastUpdated,
-      // Friendly versions
-      peopleCount: nodeCount, // Approximate for demo
-      decisionsCount: Math.floor(nodeCount * 0.2),
+      // Real counts
+      peopleCount,
+      decisionsCount,
       connectionsCount: edgeCount,
     }
   }, [graph, lastUpdated])
@@ -66,6 +84,7 @@ function App() {
       setQueryResult(res?.result || res)
       await refreshGraph()
       await refreshAgents()
+      await refreshStats()
     } catch (e) {
       setErrorBanner(e.message)
     } finally {
@@ -73,16 +92,24 @@ function App() {
     }
   }
 
-  async function handleQuery(question) {
+  async function handleQuery(question, options = {}) {
     if (!question?.trim()) return
     setProcessing(true)
     setErrorBanner('')
     try {
       const res = await queryKnowledge(question)
       setQueryResult(res)
-      setCommandQuery(res)
-      setShowQueryResponse(true)
+      if (options.showModal !== false) {
+        setCommandQuery(res)
+        setShowQueryResponse(true)
+      } else {
+        setShowQueryResponse(false)
+      }
+      if (res?.memory?.status === 'updated' || res?.memory?.nodes_added > 0 || res?.memory?.edges_added > 0) {
+        await refreshGraph()
+      }
       await refreshAgents()
+      await refreshStats()
     } catch (e) {
       setErrorBanner(e.message)
     } finally {
@@ -91,7 +118,7 @@ function App() {
   }
 
   async function handleCommandQuery(question) {
-    await handleQuery(question)
+    await handleQuery(question, { showModal: true })
   }
 
   return (
@@ -118,80 +145,49 @@ function App() {
           onClose={() => setShowQueryResponse(false)}
         />
       )}
+      <div className="app-body">
+        <Sidebar activePage={activePage} onNavigate={setActivePage} />
+        <main className="app-main">
+          {errorBanner && (
+            <div className="error-banner">
+              <span>{errorBanner}</span>
+              <button className="btn secondary" onClick={() => { loadGraph(); refreshAgents(); refreshStats() }}>Retry</button>
+            </div>
+          )}
 
-      <header className="app-header glass">
-        <div>
-          <h1>{simpleMode ? 'Your Company Brain' : 'Organizational Intelligence Console'}</h1>
-          <p className="subtle">
-            {simpleMode 
-              ? 'Ask anything with ⌘K • See who knows what • Track every decision'
-              : 'Live knowledge graph, agent reasoning, and demo scenarios in one place.'
-            }
-          </p>
-        </div>
-      </header>
-
-      {errorBanner && (
-        <div className="error-banner">
-          <span>{errorBanner}</span>
-          <button className="btn secondary" onClick={() => { loadGraph(); refreshAgents() }}>Retry</button>
-        </div>
-      )}
-
-      <div className="app-grid">
-        <aside className="left-panel">
-          <ErrorBoundary onRetry={refreshAgents}>
-            <Dashboard
-              scenarios={scenarios}
-              scenariosLoading={scenariosLoading}
-              onRunScenario={handleRunScenario}
+          {activePage === 'command-center' && (
+            <CommandCenter
+              graph={graph}
+              graphMeta={stats}
+              statsApi={runtimeStats}
+              agentStatus={agentStatus}
               onQuery={handleQuery}
               queryResult={queryResult}
               processing={processing}
-              stats={stats}
-              health={health}
-              simpleMode={simpleMode}
             />
-          </ErrorBoundary>
-        </aside>
+          )}
 
-        <ErrorBoundary onRetry={refreshGraph}>
-          <section className="graph-panel glass">
-            <div className="panel-header">
-              <div>
-                <h2>{simpleMode ? 'Company Map' : 'Knowledge Graph'}</h2>
-                <p className="subtle">
-                  {graphLoading 
-                    ? 'Loading...' 
-                    : simpleMode 
-                      ? 'See how information flows through your organization'
-                      : `Last sync: ${stats.lastUpdated || '—'}`
-                  }
-                </p>
-              </div>
-              <div className="panel-actions">
-                <button className="btn secondary" onClick={refreshGraph} disabled={graphLoading || processing}>
-                  Refresh
-                </button>
-              </div>
-            </div>
-            {graphError && (
-              <div className="error-inline">
-                <p className="error-text">{graphError}</p>
-                <button className="btn secondary" onClick={refreshGraph}>Try again</button>
-              </div>
-            )}
-            <Suspense fallback={<div className="suspense-fallback"><SkeletonCard /></div>}>
-              <KnowledgeGraph
-                data={graph}
-                selectedNode={selectedNode}
-                onSelectNode={setSelectedNode}
-                loading={graphLoading}
-                simpleMode={simpleMode}
-              />
-            </Suspense>
-          </section>
-        </ErrorBoundary>
+          {activePage === 'organization-brain' && (
+            <ErrorBoundary onRetry={refreshGraph}>
+              <Suspense fallback={<div className="suspense-fallback"><SkeletonCard /></div>}>
+                <OrganizationBrain
+                  graph={graph}
+                  loading={graphLoading}
+                  selectedNode={selectedNode}
+                  onSelectNode={setSelectedNode}
+                />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {activePage === 'ask-organization' && (
+            <AskOrganization
+              onQuery={handleQuery}
+              queryResult={queryResult}
+              processing={processing}
+            />
+          )}
+        </main>
       </div>
     </div>
   )

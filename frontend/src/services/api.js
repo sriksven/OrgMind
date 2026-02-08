@@ -22,6 +22,15 @@ export async function getHealth() {
   }
 }
 
+export async function getStats() {
+  try {
+    const { data } = await api.get('/stats')
+    return data
+  } catch (err) {
+    throw new Error(unwrapError(err))
+  }
+}
+
 export async function getGraph() {
   try {
     const { data } = await api.get('/graph')

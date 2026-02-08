@@ -9,9 +9,9 @@
   max-width: 700px;
   max-height: 85vh;
   background: var(--bg-secondary);
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: 20px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
   z-index: 10000;
 }
@@ -21,8 +21,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 2rem;
-  border-bottom: 2px solid var(--border-light);
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-tertiary);
 }
 
 .response-header h3 {
@@ -49,8 +49,8 @@
 }
 
 .close-btn:hover {
-  background: var(--error);
-  color: white;
+  background: rgba(180, 83, 60, 0.12);
+  color: var(--error);
 }
 
 /* Response Content */
@@ -87,7 +87,7 @@
 
 /* Alert Section */
 .alert-section {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.05));
+  background: rgba(180, 83, 60, 0.06);
 }
 
 .alert-list {
@@ -129,14 +129,14 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: var(--bg-secondary);
+  background: var(--bg-tertiary);
   border-radius: 12px;
   transition: var(--transition);
   cursor: pointer;
 }
 
 .stakeholder-card:hover {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+  background: rgba(76, 106, 130, 0.08);
   transform: translateY(-2px);
 }
 
@@ -144,8 +144,8 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  background: rgba(76, 106, 130, 0.2);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,8 +184,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  background: var(--primary);
+  color: #f7f4ef;
   border: none;
   border-radius: 10px;
   font-weight: 600;
@@ -196,8 +196,8 @@
 }
 
 .action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
 }
 
 /* Footer */
@@ -210,7 +210,7 @@
   width: 100%;
   padding: 1rem;
   background: var(--bg-tertiary);
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: 12px;
   font-weight: 600;
   font-size: 1rem;
@@ -223,7 +223,7 @@
 .view-graph-btn:hover {
   border-color: var(--primary);
   color: var(--primary);
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(76, 106, 130, 0.06);
 }
 
 /* Responsive */

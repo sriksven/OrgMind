@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap');
 @import url('reactflow/dist/style.css');
 
 /* ============================================
-   DARK THEME - MODERN BASE STYLES
+   LIGHT THEME - EXECUTIVE WORKSPACE
    ============================================ */
 
 *, *::before, *::after {
@@ -12,38 +12,38 @@
 }
 
 :root {
-  /* Enhanced Color System - DARK THEME */
-  --primary: #8b5cf6;
-  --primary-dark: #7c3aed;
-  --primary-light: #a78bfa;
-  --secondary: #06b6d4;
-  --secondary-light: #22d3ee;
+  /* Executive Palette */
+  --primary: #4c6a82;
+  --primary-dark: #3b556b;
+  --primary-light: #6f8798;
+  --secondary: #a0825a;
+  --secondary-light: #b79a73;
   
-  --success: #10b981;
-  --success-dark: #059669;
-  --warning: #f59e0b;
-  --warning-dark: #d97706;
-  --error: #ef4444;
-  --error-dark: #dc2626;
+  --success: #3b7b6b;
+  --success-dark: #2f6558;
+  --warning: #b07b3a;
+  --warning-dark: #925f2c;
+  --error: #b4533c;
+  --error-dark: #8f3f2e;
   
-  /* Dark Theme Colors */
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --text-muted: #9ca3af;
+  /* Light Theme Colors */
+  --text-primary: #2b2a28;
+  --text-secondary: #5f5b55;
+  --text-muted: #8a847d;
   
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
+  --bg-primary: #f7f4ef;
+  --bg-secondary: #fbf8f3;
+  --bg-tertiary: #f0ece6;
   
-  --border: #334155;
-  --border-light: #475569;
+  --border: #e2ddd4;
+  --border-light: #d1cbc1;
   
-  /* Shadows - Enhanced for dark mode */
-  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.5);
-  --shadow-sm: 0 2px 4px 0 rgb(0 0 0 / 0.6);
-  --shadow: 0 8px 16px 0 rgb(0 0 0 / 0.7);
-  --shadow-lg: 0 16px 32px 0 rgb(0 0 0 / 0.8);
-  --shadow-xl: 0 24px 48px 0 rgb(0 0 0 / 0.9);
+  /* Shadows - Soft */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  --shadow-sm: 0 2px 6px 0 rgb(0 0 0 / 0.08);
+  --shadow: 0 6px 16px 0 rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 12px 24px 0 rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 18px 32px 0 rgb(0 0 0 / 0.12);
   
   /* Radius */
   --radius-xs: 6px;
@@ -58,7 +58,7 @@
   --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   
   /* Fonts */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -67,7 +67,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  background: linear-gradient(180deg, #f7f4ef 0%, #f1ede7 100%);
   background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.6;
@@ -120,13 +120,13 @@ p {
 
 /* Selection - Dark Theme */
 ::selection {
-  background: rgba(139, 92, 246, 0.3);
+  background: rgba(76, 106, 130, 0.25);
   color: var(--text-primary);
 }
 
 /* Focus Styles - Dark Theme */
 :focus-visible {
-  outline: 3px solid rgba(139, 92, 246, 0.6);
+  outline: 3px solid rgba(76, 106, 130, 0.45);
   outline-offset: 2px;
 }
 

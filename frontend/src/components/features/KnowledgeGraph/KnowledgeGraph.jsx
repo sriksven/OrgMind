@@ -14,17 +14,18 @@ import 'reactflow/dist/style.css'
 import '../NodeDetailPanel/NodeDetailPanel.css'
 
 const TYPE_COLOR = {
-  person: '#3b82f6',
-  decision: '#f59e0b',
-  topic: '#10b981',
-  event: '#8b5cf6',
-  entity: '#6b7280',
+  person: '#d8e2ea',
+  decision: '#f2e6d6',
+  topic: '#dfeae3',
+  event: '#e6e1d9',
+  entity: '#e9e4dc',
 }
 
 // SIMPLE grid layout with generous spacing - NO OVERLAP
 function createSimpleGridLayout(nodes) {
   const positioned = []
-  const COLS = 6  // Fewer columns = more space
+  const count = nodes.length
+  const COLS = Math.max(4, Math.ceil(Math.sqrt(count))) // Balance width/height for large graphs
   const NODE_WIDTH = 200
   const NODE_HEIGHT = 100
   const GAP_X = 150  // Increased from 80
@@ -46,7 +47,7 @@ function createSimpleGridLayout(nodes) {
   return positioned
 }
 
-function toFlowNodes(nodes, limit, filter) {
+function toFlowNodes(nodes, filter, extraFilter) {
   if (!nodes || nodes.length === 0) {
     console.log('No nodes to display')
     return []
@@ -58,8 +59,11 @@ function toFlowNodes(nodes, limit, filter) {
   if (filter !== 'all') {
     filtered = nodes.filter(n => n.type === filter)
   }
+  if (extraFilter) {
+    filtered = filtered.filter(extraFilter)
+  }
   
-  const positioned = createSimpleGridLayout(filtered.slice(0, limit))
+  const positioned = createSimpleGridLayout(filtered)
   console.log(`Positioned ${positioned.length} nodes`)
   
   return positioned.map((n, i) => {
@@ -74,13 +78,13 @@ function toFlowNodes(nodes, limit, filter) {
       position: n.position,
       style: {
         background: TYPE_COLOR[n.type] || TYPE_COLOR.entity,
-        color: 'white',
+        color: '#2b2a28',
         borderRadius: '12px',
-        padding: '18px 22px',
+        padding: '16px 20px',
         fontWeight: 600,
         fontSize: 13,
-        border: '2px solid rgba(255,255,255,0.4)',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        border: '1px solid #cfc7bd',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
         width: '200px',  // Fixed width
         height: '80px',  // Fixed height
         textAlign: 'center',
@@ -107,11 +111,11 @@ function toFlowEdges(edges, nodesIndex) {
     type: 'smoothstep',
     animated: e.relation_type === 'made_by',
     style: { 
-      stroke: '#94a3b8', 
+      stroke: '#b7aea4', 
       strokeWidth: 2,
     },
     labelStyle: {
-      fill: '#64748b',
+      fill: '#7c746c',
       fontSize: 11,
     },
     data: e,
@@ -119,16 +123,22 @@ function toFlowEdges(edges, nodesIndex) {
   }))
 }
 
-function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, simpleMode }) {
+function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter }) {
   const [filter, setFilter] = useState('all')
   const [hovered, setHovered] = useState(null)
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
   const { fitView } = useReactFlow()
 
-  const limit = 100
-
-  const nodeIds = useMemo(() => new Set(nodes.map((n) => n.id)), [nodes])
+  const typeCounts = useMemo(() => {
+    const counts = { person: 0, decision: 0, topic: 0 }
+    data?.nodes?.forEach((n) => {
+      if (Object.prototype.hasOwnProperty.call(counts, n.type)) {
+        counts[n.type]++
+      }
+    })
+    return counts
+  }, [data?.nodes])
   
   const connected = useMemo(() => {
     if (!hovered) return new Set()
@@ -144,21 +154,22 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, simpleMode 
 
   useEffect(() => {
     console.log('Data updated:', data)
-    const nf = toFlowNodes(data.nodes || [], limit, filter)
+    const nf = toFlowNodes(data.nodes || [], filter, extraFilter)
     const idSet = new Set(nf.map((n) => n.id))
     const ef = toFlowEdges(data.edges || [], idSet)
     
     console.log(`Setting ${nf.length} nodes and ${ef.length} edges`)
     setNodes(nf)
     setEdges(ef)
-    
-    // Force fit view after a short delay
-    if (nf.length > 0) {
-      setTimeout(() => {
-        fitView({ padding: 0.2, duration: 200 })
-      }, 100)
-    }
-  }, [data.nodes, data.edges, filter, setNodes, setEdges, fitView])
+  }, [data.nodes, data.edges, filter, extraFilter, setNodes, setEdges, fitView])
+
+  useEffect(() => {
+    if (!nodes.length) return
+    const t = setTimeout(() => {
+      fitView({ padding: 0.2, duration: 200 })
+    }, 50)
+    return () => clearTimeout(t)
+  }, [nodes.length, fitView, filter])
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
@@ -183,7 +194,6 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, simpleMode 
       style: {
         ...n.style,
         opacity: isConnected ? 1 : 0.3,
-        transform: isSelected ? 'scale(1.1)' : 'scale(1)',
         boxShadow: isSelected 
           ? '0 8px 24px rgba(59,130,246,0.4), 0 0 0 3px rgba(59,130,246,0.3)' 
           : n.style.boxShadow,
@@ -211,16 +221,6 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, simpleMode 
       </div>
     )
   }
-
-  const typeCounts = useMemo(() => {
-    const counts = { person: 0, decision: 0, topic: 0 }
-    data.nodes?.forEach(n => {
-      if (counts.hasOwnProperty(n.type)) {
-        counts[n.type]++
-      }
-    })
-    return counts
-  }, [data.nodes])
 
   console.log('Rendering graph with', nodes.length, 'nodes')
 
@@ -276,10 +276,10 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, simpleMode 
           <Controls showInteractive={false} />
           <MiniMap 
             nodeColor={(n) => n.style?.background || '#94a3b8'}
-            maskColor="rgba(0, 0, 0, 0.05)"
+            maskColor="rgba(43, 42, 40, 0.05)"
             style={{
-              background: 'white',
-              border: '2px solid #e5e7eb',
+              background: '#fbf8f3',
+              border: '1px solid #e2ddd4',
               borderRadius: '12px',
             }}
           />
@@ -287,7 +287,7 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, simpleMode 
             variant="dots" 
             gap={25} 
             size={1.5} 
-            color="#e2e8f0" 
+            color="#d9d2c8" 
           />
         </ReactFlow>
       </div>
