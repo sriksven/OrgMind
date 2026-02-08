@@ -1,110 +1,146 @@
-/* Situation Brief Card */
+/* Situation Brief Card - Superhuman Polish */
 .situation-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 2rem;
-    box-shadow: var(--shadow-md);
-    margin-bottom: 2.5rem;
+    background: #ffffff;
+    /* Clean white base */
+    border: 1px solid #e2e8f0;
+    /* Subtle border */
+    border-radius: 20px;
+    padding: 1.75rem;
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    /* Soft, layered shadow */
+    margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #1e293b;
 }
 
-/* Add a subtle top border highlight */
+/* Subtle accent line at top */
 .situation-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary) 0%, #8b5cf6 100%);
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+    opacity: 0.8;
 }
 
+/* Header & Layout */
 .situation-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 2rem;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid #f1f5f9;
     padding-bottom: 1.5rem;
 }
 
-.situation-title h2 {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin: 0 0 0.5rem;
-    letter-spacing: -0.02em;
+.situation-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.03em;
+    margin: 0 0 0.5rem 0;
 }
 
 .date-badge {
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    font-size: 0.8rem;
+    display: inline-block;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.75rem;
     font-weight: 600;
-    padding: 0.25rem 0.75rem;
+    padding: 4px 10px;
     border-radius: 99px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border: 1px solid var(--border);
+    border: 1px solid #e2e8f0;
+}
+
+/* Org Health KPI Card */
+.metric-box {
+    text-align: right;
 }
 
 .alignment-score {
-    text-align: right;
-    background: rgba(var(--success-rgb), 0.1);
-    /* fallback needed or define var */
     background: #f0fdf4;
-    /* Light green fallback */
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
     border: 1px solid #bbf7d0;
-    color: #166534;
+    padding: 0.75rem 1.25rem;
+    border-radius: 14px;
+    color: #15803d;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
 }
 
 .score-value {
-    display: block;
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 800;
     line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: 0.25rem;
+}
+
+.score-value.critical {
+    color: #dc2626;
+}
+
+.score-value.warning {
+    color: #d97706;
+}
+
+.score-value.healthy {
+    color: #166534;
 }
 
 .score-label {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
+    color: #166534;
     opacity: 0.8;
 }
 
-/* Grid Layout */
-.situation-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+.risk-badge {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #dc2626;
+    font-weight: 600;
+    background: #fef2f2;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid #fecaca;
+    display: inline-block;
+}
+
+/* Sections & Typography */
+.situation-body {
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
 }
 
-@media (max-width: 1200px) {
-    .situation-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .situation-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.situation-section h3 {
-    font-size: 0.95rem;
+.brief-col h3,
+.situation-actions h3,
+.brief-section h3,
+.insight-col h3 {
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
     font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-/* Lists */
+/* Refined Key Changes & Risks Lists */
 .situation-list {
     list-style: none;
     padding: 0;
@@ -116,91 +152,144 @@
 
 .situation-list li {
     position: relative;
-    padding-left: 1.25rem;
+    padding-left: 1rem;
     font-size: 0.95rem;
+    font-weight: 500;
     line-height: 1.5;
-    color: var(--text-primary);
+    color: #334155;
+    transition: color 0.2s;
 }
 
+.situation-list li:hover {
+    color: #0f172a;
+}
+
+/* Unordered bullets custom */
 .situation-list li::before {
-    content: '•';
+    content: '';
     position: absolute;
     left: 0;
-    color: var(--border-hover);
-    font-weight: bold;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #cbd5e1;
 }
 
-/* Specific List Styles */
 .situation-list.changes li::before {
-    color: var(--primary);
+    background: #3b82f6;
+    /* Blue dot */
 }
 
+/* Risks specific */
 .situation-list.risks li {
     color: #b91c1c;
-    /* Red text */
+    /* Deep red text for readability */
 }
 
 .situation-list.risks li::before {
-    content: '⚠';
-    font-size: 0.8rem;
-    color: #ef4444;
-    left: -0.25rem;
+    background: #ef4444;
+    /* Red dot */
+    box-shadow: 0 0 0 2px #fee2e2;
 }
 
-.situation-list.blockers li::before {
-    content: '⛔';
-    font-size: 0.8rem;
-    left: -0.25rem;
+/* Intelligence Mode Styles */
+.brief-section {
+    background: #fef2f2;
+    /* Subtle red tint for blockers */
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 1rem;
 }
 
-/* Actions Column */
+.blocker-item {
+    background: #fff;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.blocker-subject {
+    font-weight: 700;
+    color: #b91c1c;
+}
+
+.blocker-waiting {
+    display: block;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+/* Action Buttons - Premium Feel */
 .situation-actions {
-    display: flex;
-    flex-direction: column;
+    margin-top: 1rem;
 }
 
-.action-buttons {
+.action-row {
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .action-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-weight: 600;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
     font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: left;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    min-width: 140px;
+    /* Consistent width */
 }
 
 .action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-    border-color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-color: #cbd5e1;
+    color: #0f172a;
 }
 
-.action-btn.notify:hover {
-    background: #eff6ff;
-    border-color: #3b82f6;
-    color: #1e40af;
+/* Action Variants on Hover */
+.action-btn:hover {
+    background: linear-gradient(to bottom right, #ffffff, #f8fafc);
 }
 
-.action-btn.summary:hover {
-    background: #fdf4ff;
-    border-color: #e879f9;
-    color: #86198f;
+.action-reason {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.action-btn.schedule:hover {
-    background: #f0fdf4;
-    border-color: #4ade80;
-    color: #166534;
+/* Scope Badges */
+.scope-context {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.context-tag {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.context-tag.issues {
+    background: #fef2f2;
+    color: #dc2626;
 }
