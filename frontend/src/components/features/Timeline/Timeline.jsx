@@ -6,22 +6,20 @@ export default function Timeline({ graph, queryResult }) {
   // Extract timeline events from graph and query results
   const events = useMemo(() => {
     const timelineEvents = [];
-    
-    // Add decisions from graph
+
+    // Add events from graph (any node with a date)
     if (graph?.nodes) {
-      const decisions = graph.nodes.filter(n => n.type === 'decision');
-      decisions.forEach(decision => {
-        if (decision.date) {
-          timelineEvents.push({
-            id: decision.id,
-            type: 'decision',
-            title: decision.label || decision.id,
-            timestamp: new Date(decision.date),
-            icon: 'D',
-            color: '#3b82f6',
-            description: decision.description || `Decision: ${decision.label}`
-          });
-        }
+      const datedNodes = graph.nodes.filter(n => n.date);
+      datedNodes.forEach(node => {
+        timelineEvents.push({
+          id: node.id,
+          type: node.type || 'event',
+          title: node.label || node.id,
+          timestamp: new Date(node.date),
+          icon: node.type === 'decision' ? 'D' : 'E',
+          color: node.type === 'decision' ? '#3b82f6' : '#10b981',
+          description: node.props?.content || node.label || 'Event'
+        });
       });
     }
 
@@ -139,9 +137,9 @@ export default function Timeline({ graph, queryResult }) {
               <div className="event-content">
                 <div className="event-header">
                   <div className="event-title-group">
-                    <span className="event-type-badge" style={{ 
+                    <span className="event-type-badge" style={{
                       background: `${event.color}20`,
-                      color: event.color 
+                      color: event.color
                     }}>
                       {getTypeLabel(event.type)}
                     </span>

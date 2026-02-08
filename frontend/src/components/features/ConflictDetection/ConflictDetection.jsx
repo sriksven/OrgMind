@@ -29,17 +29,45 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
       });
     }
 
-    // Check agent status for conflicts
     if (agentStatus?.agents?.critic?.recent_reasoning) {
       agentStatus.agents.critic.recent_reasoning.forEach(reasoning => {
-        if (reasoning.step?.toLowerCase().includes('conflict') || 
-            reasoning.step?.toLowerCase().includes('contradict')) {
+        // Parse details if stringified
+        let details = reasoning.details || {};
+        try {
+          if (typeof details === 'string') details = JSON.parse(details);
+        } catch (e) { /* ignore */ }
+
+        // Only show if it's a conflict check
+        if (reasoning.step?.toLowerCase().includes('conflict') ||
+          reasoning.step?.toLowerCase().includes('contradict')) {
+
+          let title = reasoning.step;
+          let desc = "Conflict check processed";
+          let severity = "low";
+          let type = "log";
+
+          // Handle "Conflict check complete" specifically
+          if (details.verdict) {
+            const verdict = typeof details.verdict === 'string' ? JSON.parse(details.verdict) : details.verdict;
+            if (verdict?.conflict === false) {
+              title = "✅ No Conflict Detected";
+              desc = verdict.explanation || "Information is consistent with knowledge graph.";
+              severity = "low";
+            } else if (verdict?.conflict === true) {
+              title = "⚠️ Conflict Detected";
+              desc = verdict.explanation || "Contradiction found.";
+              severity = verdict.severity || "medium";
+            }
+          } else {
+            desc = typeof details === 'object' ? JSON.stringify(details, null, 2) : String(details);
+          }
+
           detectedConflicts.push({
             id: `reasoning-conflict-${reasoning.timestamp}`,
-            type: 'potential_conflict',
-            severity: 'medium',
-            title: reasoning.step,
-            description: JSON.stringify(reasoning.details || {}),
+            type: type,
+            severity: severity,
+            title: title,
+            description: desc,
             detectedBy: 'Critic Agent',
             timestamp: new Date(reasoning.timestamp),
             confidence: reasoning.confidence
@@ -148,7 +176,7 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
                 exit={{ opacity: 0, x: -100 }}
                 transition={{ duration: 0.3, delay: idx * 0.1 }}
               >
-                <div 
+                <div
                   className="conflict-card-header"
                   onClick={() => setExpandedConflict(isExpanded ? null : conflict.id)}
                 >
@@ -158,9 +186,9 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
                   <div className="conflict-info">
                     <div className="conflict-title-row">
                       <h4>{conflict.title}</h4>
-                      <span className="severity-badge" style={{ 
+                      <span className="severity-badge" style={{
                         background: `${severityColor}20`,
-                        color: severityColor 
+                        color: severityColor
                       }}>
                         {conflict.severity}
                       </span>
@@ -194,7 +222,7 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
                           <div className="comparison-side old">
                             <h5>Existing Information</h5>
                             <div className="comparison-content">
-                              {typeof conflict.oldValue === 'object' 
+                              {typeof conflict.oldValue === 'object'
                                 ? JSON.stringify(conflict.oldValue, null, 2)
                                 : conflict.oldValue}
                             </div>
@@ -205,7 +233,7 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
                           <div className="comparison-side new">
                             <h5>New Information</h5>
                             <div className="comparison-content">
-                              {typeof conflict.newValue === 'object' 
+                              {typeof conflict.newValue === 'object'
                                 ? JSON.stringify(conflict.newValue, null, 2)
                                 : conflict.newValue}
                             </div>
@@ -239,7 +267,7 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
                         <div className="confidence-indicator">
                           <span>Confidence: </span>
                           <div className="confidence-bar">
-                            <div 
+                            <div
                               className="confidence-fill"
                               style={{ width: `${conflict.confidence * 100}%` }}
                             />
@@ -249,13 +277,13 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
                       )}
 
                       <div className="conflict-actions">
-                        <button 
+                        <button
                           className="action-btn resolve"
                           onClick={() => handleResolve(conflict.id)}
                         >
                           ✓ Resolve
                         </button>
-                        <button 
+                        <button
                           className="action-btn dismiss"
                           onClick={() => handleDismiss(conflict.id)}
                         >
