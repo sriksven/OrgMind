@@ -58,8 +58,10 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
               desc = verdict.explanation || "Contradiction found.";
               severity = verdict.severity || "medium";
             }
+          } else if (details.keys && Array.isArray(details.keys)) {
+            desc = "Validating analysis parameters...";
           } else {
-            desc = typeof details === 'object' ? JSON.stringify(details, null, 2) : String(details);
+            desc = "Processing analysis...";
           }
 
           detectedConflicts.push({

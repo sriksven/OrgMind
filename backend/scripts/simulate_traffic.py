@@ -11,10 +11,12 @@ API_URL = os.getenv("API_URL", "https://orgmind.onrender.com/process")
 
 async def send_email(client, email):
     """Send a single email to the backend."""
+    # Overwrite date to be "now" so it appears in "Today" on frontend
+    now_str = datetime.now().strftime("%a, %b %d, %I:%M %p")
     payload = {
         "type": "email",
         "content": email["content"],
-        "date": email["date"],
+        "date": now_str,
         "metadata": {
             "sender": email["sender"],
             "subject": email["subject"]
