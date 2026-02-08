@@ -1,514 +1,136 @@
 # OrgMind - AI Chief of Staff
 
-**An AI-powered organizational intelligence system that turns communication into structured, versioned, visual knowledge.**
+OrgMind is an automated organizational intelligence system. It acts as a central brain for your company, turning scattered communications like emails and announcements into a structured knowledge graph that you can query in plain English.
 
-[![Status](https://img.shields.io/badge/status-operational-success)]()
-[![Backend](https://img.shields.io/badge/backend-FastAPI-009688)]()
-[![Frontend](https://img.shields.io/badge/frontend-React-61DAFB)]()
-[![Dark Mode](https://img.shields.io/badge/theme-dark-black)]()
+Think of it as a combination of a search engine and a map for your organization's knowledge.
 
----
+## What It Does
 
-## What is OrgMind?
+OrgMind helps teams stay aligned by solving the problem of information silos. Instead of searching through thousands of emails or Slack messages, you can ask OrgMind questions like "Why was the product launch delayed?" or "Who is working on the mobile API?"
 
-OrgMind is your company's organizational brain - an AI system that:
-
-- **Builds a living knowledge graph** from emails, decisions, and communications
-- **Uses multi-agent AI** to understand, extract, and organize information
-- **Answers natural language questions** about your organization
-- **Tracks decisions and stakeholders** over time
-- **Visualizes relationships** between people, topics, and decisions
-
-**Think of it as: Google Maps + Git + Slack — for organizational knowledge**
-
----
+It works by:
+1. **Reading Communications:** It ingests emails and updates to understand what is happening.
+2. **Building a Graph:** It connects people, decisions, and topics in a network (a knowledge graph).
+3. **Analyzing Risks:** An AI agent monitors this graph to spot conflicts, delays, or blocked teams.
+4. **Answering Questions:** You can ask it questions, and it provides answers based on the current facts.
 
 ## Key Features
 
-### 1. Command Bar Interface (Cmd+K)
-Superhuman-style command palette for instant access to organizational intelligence.
+### 1. The Knowledge Graph
+The core of the system is a visual network of your organization.
+- **Nodes:** Represent People, Teams, Decisions, and Topics.
+- **Edges:** Represent relationships (e.g., "Dependency", "Blocked By", "Managed By").
+- **Live Updates:** The graph updates automatically as new information comes in.
 
-### 2. Interactive Knowledge Graph
-Beautiful dark-themed visualization with:
-- **298 People** - Team members and stakeholders
-- **27 Decisions** - Key organizational choices
-- **150 Topics** - Projects, initiatives, and themes
-- **501 total nodes** with 26 relationships mapped
+### 2. Situation Brief
+A real-time dashboard that gives you an executive summary of the organization's health.
+- **Health Score:** A calculated metric based on the number of risks and conflicts detected.
+- **Risk Detection:** Automatically identifies blocked teams or delayed projects.
+- **Timeline:** Shows a chronological view of recent decisions and events.
 
-### 3. Multi-Agent AI System
-Three specialized AI agents working together:
-- **Memory Agent** - Stores and retrieves information
-- **Router Agent** - Understands and routes queries
-- **Critic Agent** - Validates and checks facts
+### 3. Command Interface
+A simple search bar (accessible via Cmd+K) allows you to navigate the system instantly. You can jump to a specific person, find a decision, or ask a general question.
 
-### 4. Real-time Updates
-- Live agent activity monitoring
-- Instant graph updates
-- Hot module replacement in development
+### 4. Traffic Simulation
+For demonstration purposes, OrgMind includes a simulation engine that generates realistic email traffic. This allows you to see the system in action without connecting it to live company data immediately.
 
-### 5. Rich Node Details
-Click any node to see:
-- Connections and relationships
-- Decision history
-- Knowledge timelines
-- Stakeholder involvement
+## System Architecture
 
-### 6. Professional Dark Theme
-Eye-friendly dark mode with:
-- Glassmorphism effects
-- Smooth animations
-- Clear visual hierarchy
-- Modern design system
+The project is divided into two main parts:
 
-### 7. Intelligence Brief System
-Advanced briefing interface with:
-- Human-readable answers to organizational questions
-- Expandable panels for critical blockers, business impact, and root causes
-- Color-coded severity indicators
-- Actionable recommendations
-- Multiple dismiss options for flexible navigation
+### Backend (Python)
+- **Framework:** FastAPI
+- **Graph Database:** NetworkX (in-memory for speed, persisted to disk)
+- **AI Agents:** 
+  - **Intelligence Agent:** Analyzes the graph for risks.
+  - **Coordinator:** Manages the flow of information.
+- **LLM Integration:** Uses OpenAI (GPT-4) for understanding text and generating insights.
 
----
+### Frontend (React)
+- **Framework:** React with Vite
+- **Visualization:** ReactFlow for the interactive graph.
+- **Styling:** Custom CSS with a dark-themed design.
+- **State Management:** React Hooks for handling real-time data.
 
-## Quick Start
+## Getting Started
+
+Follow these steps to set up OrgMind on your local machine.
 
 ### Prerequisites
+- Python 3.12 or higher
+- Node.js 20 or higher
+- An OpenAI API Key
 
-- Python 3.12+
-- Node.js 20+
-- npm 11+
+### 1. Installation
 
-### Live Demo
+Clone the repository and install dependencies.
 
-- **Frontend (GitHub Pages):** https://sriksven.github.io/OrgMind/
-- **Backend (Render):** https://orgmind.onrender.com
-
-### Installation
-
+**Backend Setup:**
+Open a terminal and navigate to the backend folder:
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd OrgMind
-
-# Install all dependencies
-make install
-
-# Start development servers
-make dev
+cd backend
+pip install -r requirements.txt
 ```
 
-**That's it!** Open:
-- **Frontend:** http://localhost:5173/
-- **Backend API:** http://127.0.0.1:8000/
-- **API Docs:** http://127.0.0.1:8000/docs
+**Frontend Setup:**
+Open a new terminal and navigate to the frontend folder:
+```bash
+cd frontend
+npm install
+```
 
----
+### 2. Configuration
 
-## Current Data
+Create a `.env` file in the `backend` directory with your API key:
+```
+OPENAI_API_KEY=your_api_key_here
+OPENAI_MODEL=gpt-4o
+```
 
-The system comes pre-loaded with realistic business data:
+### 3. Running the Application
 
-- **150 business emails** (8 months of company operations)
-- **501 nodes** in the knowledge graph
-  - 298 people across departments
-  - 27 key decisions
-  - 150 topics and projects
-- **26 relationships** mapped between entities
+**Start the Backend:**
+In the backend terminal, run:
+```bash
+uvicorn main:app --reload
+```
+The API will start at http://127.0.0.1:8000.
 
----
+**Start the Frontend:**
+In the frontend terminal, run:
+```bash
+npm run dev
+```
+The UI will run at http://localhost:5173.
 
-## Try It Out
+### 4. Running a Simulation
 
-### 1. Press `Cmd+K` (or `Ctrl+K`)
-Opens the command bar with example queries.
+To populate the system with data, you can run the traffic simulator. This will send a batch of emails to the backend.
 
-### 2. Try These Queries:
-- "Who is blocked?"
-- "What changed today?"
-- "What are the biggest risks?"
-- "Show engineering team"
-- "What decisions affect mobile?"
-- "Who knows about the API migration?"
-- "Show me infrastructure changes"
+Open a terminal in the `backend` folder and run:
+```bash
+python scripts/simulate_traffic.py
+```
+Refresh the frontend to see the new data appear in the Timeline and Situation Brief.
 
-### 3. Explore the Graph
-- Click filter buttons to focus on People, Decisions, or Topics
-- Click any node to see detailed information
-- Pan and zoom to explore relationships
+## API Documentation
 
-### 4. Watch AI Agents Work
-Click "AI Activity" in the navbar to see agents in action.
+When the backend is running, you can access the interactive API documentation at:
+http://127.0.0.1:8000/docs
 
----
+**Key Endpoints:**
+- `GET /health` - Checks if the system is running.
+- `POST /query` - Asks a question to the AI.
+- `GET /graph` - Retrieves the full knowledge graph.
+- `GET /agents/status` - Gets the current status of AI agents.
 
 ## Project Structure
 
-```
-OrgMind/
-├── backend/                 # Python FastAPI backend
-│   ├── agents/             # AI agent system
-│   ├── data_pipeline/      # Data processing
-│   ├── knowledge_graph/    # Graph management
-│   ├── tests/              # Comprehensive test suite
-│   ├── main.py             # FastAPI application
-│   └── requirements.txt    # Dependencies
-│
-├── frontend/                # React frontend
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   │   ├── features/  # CommandBar, KnowledgeGraph, etc.
-│   │   │   └── layout/    # Navbar
-│   │   ├── styles/        # CSS (dark theme)
-│   │   ├── hooks/         # Custom React hooks
-│   │   └── services/      # API services
-│   └── tests/              # Test structure
-│
-├── docs/                    # Comprehensive documentation
-└── Makefile                 # Development commands
-```
-
----
-
-## Development
-
-### Common Commands
-
-```bash
-# Start everything
-make dev
-
-# Run tests
-make test
-
-# Check status
-make status
-
-# Clean up
-make clean
-
-# See all commands
-make help
-```
-
-### Backend Development
-
-```bash
-cd backend
-
-# Start server
-uvicorn main:app --reload
-
-# Run tests
-pytest
-
-# With coverage
-pytest --cov
-```
-
-### Frontend Development
-
-```bash
-cd frontend
-
-# Start dev server
-npm run dev
-
-# Build for production
-npm run build
-```
-
----
-
-## Testing
-
-### Backend Tests
-Complete test suite with:
-- Unit tests for graph operations
-- Agent functionality tests
-- Data pipeline tests
-- Integration workflow tests
-
-```bash
-cd backend
-pytest -v
-```
-
-### Test Coverage
-- GraphBuilder operations
-- Agent coordination
-- Entity extraction
-- Data ingestion
-- Integration flows
-
----
-
-## UI Components
-
-### Implemented Features
-
-**Navigation**
-- Sticky navbar with live stats
-- AI activity dropdown
-- Simple/Advanced mode toggle
-
-**Command Interface**
-- Cmd+K command bar
-- Example queries
-- Natural language processing
-
-**Visualization**
-- Interactive knowledge graph (ReactFlow)
-- 500+ node support
-- Type-based filtering
-- Smooth animations
-
-**Detail Views**
-- Node detail panel with tabs
-- Connection exploration
-- Knowledge timelines
-
-**Query Response**
-- Structured results display
-- Stakeholder cards
-- Action buttons
-
----
-
-## AI Agent System
-
-### Architecture
-
-```
-User Query
-    ↓
-Router Agent → Understands intent
-    ↓
-Memory Agent → Accesses knowledge graph
-    ↓
-Critic Agent → Validates response
-    ↓
-Coordinator → Orchestrates and responds
-```
-
-### Capabilities
-
-- Natural language understanding
-- Entity extraction from text
-- Relationship detection
-- Decision tracking
-- Knowledge graph updates
-- Conflict detection
-
----
-
-## Data Pipeline
-
-### Process Flow
-
-```
-Raw Emails (CSV)
-    ↓
-Entity Extraction → People, Topics, Decisions
-    ↓
-Relationship Detection → Connections
-    ↓
-Knowledge Graph → NetworkX
-    ↓
-Persistence → Pickle storage
-    ↓
-API Responses → JSON
-```
-
-### Data Processing
-
-1. **Ingestion** - CSV parsing, email loading
-2. **Extraction** - NLP entity recognition
-3. **Enrichment** - Metadata and relationships
-4. **Storage** - Graph serialization
-
----
-
-## API Endpoints
-
-### Available Endpoints
-
-- `GET /health` - System health check
-- `GET /graph` - Get knowledge graph data
-- `GET /agents/status` - Agent activity status
-- `POST /query` - Natural language queries
-- `POST /process` - Process new information
-- `GET /demo/scenarios` - Demo scenarios
-- `POST /demo/run/{scenario_id}` - Run demo
-- `GET /stats` - System statistics
-
-### API Documentation
-
-Visit http://127.0.0.1:8000/docs when running the backend.
-
----
-
-## Performance
-
-### Metrics
-
-- **Graph Load:** <1 second (501 nodes)
-- **Query Response:** <500ms average
-- **Hot Reload:** ~100ms
-- **Graph Render:** Smooth 60fps
-
-### Optimizations
-
-- Lazy loading for large components
-- Efficient NetworkX algorithms
-- Frontend component memoization
-- Optimized bundle size
-
----
-
-## Security
-
-- Environment-based configuration
-- API key management
-- CORS configuration
-- Input validation
-- Comprehensive error handling
-
----
-
-## Deployment
-
-### Development
-
-```bash
-make dev
-```
-
-Both servers start automatically:
-- Backend: http://127.0.0.1:8000
-- Frontend: http://localhost:5173
-
-### Production (Render + GitHub Pages)
-
-**Backend (Render)**
-- Start command: `PYTHONPATH=. uvicorn main:app --host 0.0.0.0 --port $PORT`
-- Set `CORS_ORIGINS` to include your GitHub Pages origin (note: origin is scheme + host only):
-  - `https://sriksven.github.io`
-
-**Frontend (GitHub Pages)**
-- Repo `Settings → Pages → Source`: `GitHub Actions`
-- Repo secret (optional but recommended): `VITE_API_BASE_URL=https://orgmind.onrender.com`
-  - If omitted, the Pages workflow defaults to `https://orgmind.onrender.com`.
-
-**Keepalive (optional)**
-- Workflow: `.github/workflows/keepalive.yml` pings Render every 10 minutes.
-- Optional secret: `RENDER_HEALTH_URL` (defaults to `https://orgmind.onrender.com/health`).
-
-### Production Build
-
-```bash
-# Backend
-cd backend
-uvicorn main:app --host 0.0.0.0 --port 8000
-
-# Frontend
-cd frontend
-npm run build
-# Serve the dist/ folder with any static file server
-```
-
----
-
-## Documentation
-
-Comprehensive documentation in `/docs`:
-
-- **Getting Started** - Setup and usage guides
-- **Architecture** - System design documents
-- **API** - Endpoint documentation
-- **Design System** - UI/UX guidelines
-- **Status Reports** - Implementation tracking
-
-### Recent Updates
-
-- **[Design Improvements](docs/DESIGN_IMPROVEMENTS.md)** - Enhanced UI/UX for the SituationBrief component with modern gradients, better spacing, and improved visual hierarchy
-- **[Close Functionality](docs/CLOSE_FUNCTIONALITY.md)** - Added multiple dismiss options for intelligence views with consistent UX across all panels
-
----
-
-## Built With
-
-### Backend
-- **FastAPI** - Modern Python web framework
-- **NetworkX** - Graph algorithms and data structures
-- **Pydantic** - Data validation
-- **Pandas** - Data processing
-
-### Frontend
-- **React** - UI library
-- **ReactFlow** - Graph visualization
-- **Framer Motion** - Smooth animations
-- **Vite** - Fast build tool
-- **Axios** - HTTP client
-
-### AI/ML
-- **OpenAI/Gemini** - Language models for entity extraction
-
----
+- **backend/** - Contains all Python code, API logic, and AI agents.
+- **frontend/** - Contains the React application and UI components.
+- **docs/** - Additional documentation and design notes.
+- **data/** - Storage for the knowledge graph and simulation data.
 
 ## License
 
-MIT License - See LICENSE file
-
----
-
-## Project Stats
-
-**Built For:** AI Hackathon - Organizational Intelligence Track
-
-### Current Implementation
-
-- Multi-agent AI system
-- Interactive knowledge graph
-- Natural language queries
-- Decision tracking
-- Dark theme UI
-- Real-time updates
-- Comprehensive tests
-- Professional structure
-
-### Data Scale
-
-- 150 emails processed
-- 501 nodes in graph
-- 298 people tracked
-- 27 decisions recorded
-- 150 topics mapped
-- 8 months of data
-
----
-
-## Quick Reference
-
-### Access Points
-
-- **Frontend UI:** http://localhost:5173/
-- **Backend API:** http://127.0.0.1:8000/
-- **API Docs:** http://127.0.0.1:8000/docs
-- **Health Check:** http://127.0.0.1:8000/health
-
-### Key Commands
-
-```bash
-make dev      # Start both servers
-make test     # Run all tests
-make status   # Check system status
-make help     # Show all commands
-```
-
----
-
-**OrgMind** - Your organization's AI-powered brain
-
-**Version:** 1.0.0  
-**Status:** Fully Operational  
-**Last Updated:** Feb 8, 2026
+This project is licensed under the MIT License.
