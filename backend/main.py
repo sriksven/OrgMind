@@ -49,6 +49,14 @@ def _export_graph_cached(app: FastAPI) -> None:
     data = exporter.to_dict()
     stats = graph_builder.get_stats()
     version = coordinator.memory.get_graph_state().get("version", 0)
+    
+    # Save to disk if path is available
+    if hasattr(app.state, "graph_path"):
+        try:
+            graph_builder.save(app.state.graph_path)
+        except Exception as e:
+            logger.error(f"Failed to save graph to disk: {e}")
+
     app.state.graph_cache = {
         "nodes": data.get("nodes", []),
         "edges": data.get("edges", []),
@@ -85,6 +93,7 @@ async def lifespan(app: FastAPI):
 
     graph_path = os.getenv("ORG_GRAPH_PATH", "data/processed/knowledge_graph.pkl")
     abs_graph_path = os.path.join(os.path.dirname(__file__), graph_path)
+    app.state.graph_path = abs_graph_path
 
     if os.path.exists(abs_graph_path):
         loaded = GraphBuilder.load(abs_graph_path)

@@ -28,7 +28,7 @@ class IntelligenceAgent(BaseAgent):
         insights = self._analyze_graph()
         
         # 2. Structure the Brief
-        health_score = max(0, 100 - (len(insights["blockers"]) * 10) - (len(insights["risks"]) * 5))
+        health_score = max(0, 100 - (len(insights["blockers"]) * 5) - (len(insights["risks"]) * 2))
         trend = "stable" if health_score > 90 else "decaying"
         
         brief = {
