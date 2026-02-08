@@ -13,17 +13,24 @@ export default function Navbar({
 
   const agentData = [
     {
+      id: 'intelligence',
+      name: simpleMode ? 'Intelligence Agent' : 'Intelligence Agent',
+      description: simpleMode ? 'Analyzes organizational data' : 'Intelligence briefs and analysis',
+      color: '#3b82f6',
+      icon: '🧠'
+    },
+    {
       id: 'memory',
       name: simpleMode ? 'Memory Keeper' : 'Memory Agent',
       description: simpleMode ? 'Remembers everything about your company' : 'Graph and entity management',
-      color: '#8b5cf6',
-      icon: '🧠'
+      color: '#10b981',
+      icon: '💾'
     },
     {
       id: 'router',
       name: simpleMode ? 'Smart Router' : 'Router Agent',
       description: simpleMode ? 'Figures out who needs to know what' : 'Information routing and relevance',
-      color: '#3b82f6',
+      color: '#8b5cf6',
       icon: '🎯'
     },
     {
@@ -48,30 +55,19 @@ export default function Navbar({
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        {/* Left: Logo and AI Activity */}
+        {/* Left: Logo */}
         <div className="navbar-left">
           <div className="navbar-logo">
             <span className="logo-icon">🧠</span>
             <span className="logo-text">OrgMind</span>
           </div>
-
-          <button
-            className="navbar-button"
-            onClick={() => setShowAgents(!showAgents)}
-            title={showAgents ? "Hide AI Activity" : "Show AI Activity"}
-          >
-            <span className="button-icon">🤖</span>
-            <span className="button-text">AI Activity</span>
-            <span className={`chevron ${showAgents ? 'open' : ''}`}>▼</span>
-          </button>
         </div>
 
-        {/* Right: Stats and Actions */}
+        {/* Right: Stats and AI Activity */}
         <div className="navbar-right">
           <button
             className="navbar-stats compact"
-            onClick={() => setShowAgents(!showAgents)}
-            title="View AI Assistants"
+            title="Organization Stats"
           >
             <div className="stat-item">
               <span className="stat-icon">👥</span>
@@ -91,11 +87,13 @@ export default function Navbar({
           </button>
 
           <button
-            className="navbar-button mode-toggle"
-            onClick={onToggleMode}
-            title={simpleMode ? "Switch to Advanced Mode" : "Switch to Simple Mode"}
+            className="navbar-button"
+            onClick={() => setShowAgents(!showAgents)}
+            title={showAgents ? "Hide AI Activity" : "Show AI Activity"}
           >
-            <span className="button-text">{simpleMode ? '⚡ Advanced' : '✨ Simple'}</span>
+            <span className="button-icon">🤖</span>
+            <span className="button-text">AI Activity</span>
+            <span className={`chevron ${showAgents ? 'open' : ''}`}>▼</span>
           </button>
         </div>
       </div>

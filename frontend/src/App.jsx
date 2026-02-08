@@ -165,6 +165,7 @@ function App() {
             onQuery={handleSidebarQuery}
             processing={processing}
             queryResult={queryResult}
+            onClearQuery={() => setQueryResult(null)} // Add clear functionality
           />
         </div>
 
@@ -194,6 +195,8 @@ function App() {
               statsApi={runtimeStats}
               agentStatus={agentStatus}
               queryResult={queryResult} // Pass rich intelligence
+              onClearQuery={() => setQueryResult(null)} // Add clear functionality
+              onNavigateToNode={setSelectedNode} // Pass node selection handler
             />
           </ErrorBoundary>
         </div>

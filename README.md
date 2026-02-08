@@ -60,6 +60,14 @@ Eye-friendly dark mode with:
 - Clear visual hierarchy
 - Modern design system
 
+### 7. Intelligence Brief System
+Advanced briefing interface with:
+- Human-readable answers to organizational questions
+- Expandable panels for critical blockers, business impact, and root causes
+- Color-coded severity indicators
+- Actionable recommendations
+- Multiple dismiss options for flexible navigation
+
 ---
 
 ## Quick Start
@@ -110,6 +118,9 @@ The system comes pre-loaded with realistic business data:
 Opens the command bar with example queries.
 
 ### 2. Try These Queries:
+- "Who is blocked?"
+- "What changed today?"
+- "What are the biggest risks?"
 - "Show engineering team"
 - "What decisions affect mobile?"
 - "Who knows about the API migration?"
@@ -396,6 +407,11 @@ Comprehensive documentation in `/docs`:
 - **Design System** - UI/UX guidelines
 - **Status Reports** - Implementation tracking
 
+### Recent Updates
+
+- **[Design Improvements](docs/DESIGN_IMPROVEMENTS.md)** - Enhanced UI/UX for the SituationBrief component with modern gradients, better spacing, and improved visual hierarchy
+- **[Close Functionality](docs/CLOSE_FUNCTIONALITY.md)** - Added multiple dismiss options for intelligence views with consistent UX across all panels
+
 ---
 
 ## Built With
@@ -474,4 +490,4 @@ make help     # Show all commands
 
 **Version:** 1.0.0  
 **Status:** Fully Operational  
-**Last Updated:** Feb 7, 2026
+**Last Updated:** Feb 8, 2026

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Intelligence Answers</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        h1 {
+            color: #0f172a;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4c6a82;
+            margin-bottom: 15px;
+        }
+        .answer {
+            background: linear-gradient(135deg, rgba(76, 106, 130, 0.05) 0%, rgba(76, 106, 130, 0.02) 100%);
+            border: 1px solid rgba(76, 106, 130, 0.15);
+            border-radius: 10px;
+            padding: 15px;
+            line-height: 1.6;
+            color: #334155;
+            white-space: pre-wrap;
+        }
+        .loading {
+            color: #64748b;
+            font-style: italic;
+        }
+        button {
+            background: #4c6a82;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #3d5568;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e0f2fe;
+            border-left: 3px solid #0ea5e9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Intelligence Agent Answer Test</h1>
+    
+    <div class="status" id="status">
+        Backend: <span id="backend-status">Checking...</span> | 
+        Frontend: <span id="frontend-status">Checking...</span>
+    </div>
+
+    <div style="margin: 20px 0;">
+        <button onclick="testQuestion('Who is blocked?')">Test "Who is blocked?"</button>
+        <button onclick="testQuestion('What changed today?')">Test "What changed today?"</button>
+        <button onclick="testQuestion('What are the biggest risks?')">Test "What are the biggest risks?"</button>
+    </div>
+
+    <div class="test-section">
+        <div class="question" id="question">Click a button above to test a question</div>
+        <div class="answer" id="answer">Answer will appear here...</div>
+    </div>
+
+    <script>
+        // Check backend and frontend status
+        async function checkStatus() {
+            try {
+                const backendRes = await fetch('http://127.0.0.1:8000/health');
+                document.getElementById('backend-status').textContent = backendRes.ok ? '✅ Running' : '❌ Down';
+                document.getElementById('backend-status').style.color = backendRes.ok ? '#10b981' : '#ef4444';
+            } catch (e) {
+                document.getElementById('backend-status').textContent = '❌ Down';
+                document.getElementById('backend-status').style.color = '#ef4444';
+            }
+
+            try {
+                const frontendRes = await fetch('http://localhost:5173');
+                document.getElementById('frontend-status').textContent = frontendRes.ok ? '✅ Running' : '❌ Down';
+                document.getElementById('frontend-status').style.color = frontendRes.ok ? '#10b981' : '#ef4444';
+            } catch (e) {
+                document.getElementById('frontend-status').textContent = '❌ Down';
+                document.getElementById('frontend-status').style.color = '#ef4444';
+            }
+        }
+
+        async function testQuestion(question) {
+            document.getElementById('question').textContent = question;
+            document.getElementById('answer').textContent = 'Loading...';
+            document.getElementById('answer').className = 'answer loading';
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/agent/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        intent: 'intelligence',
+                        query: question,
+                        context: { role: 'user' }
+                    })
+                });
+
+                const data = await response.json();
+                const answer = data.result?.answer || 'No answer received';
+                
+                document.getElementById('answer').textContent = answer;
+                document.getElementById('answer').className = 'answer';
+            } catch (error) {
+                document.getElementById('answer').textContent = 'Error: ' + error.message;
+                document.getElementById('answer').style.color = '#ef4444';
+            }
+        }
+
+        // Check status on load
+        checkStatus();
+        setInterval(checkStatus, 5000);
+    </script>
+</body>
+</html>

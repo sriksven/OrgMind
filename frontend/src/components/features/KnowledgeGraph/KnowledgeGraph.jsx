@@ -26,10 +26,10 @@ function createSimpleGridLayout(nodes) {
   const positioned = []
   const count = nodes.length
   const COLS = Math.max(4, Math.ceil(Math.sqrt(count))) // Balance width/height for large graphs
-  const NODE_WIDTH = 200
-  const NODE_HEIGHT = 100
-  const GAP_X = 150  // Increased from 80
-  const GAP_Y = 130  // Increased from 100
+  const NODE_WIDTH = 240  // Increased to match new node size
+  const NODE_HEIGHT = 100 // Matches new node height
+  const GAP_X = 180  // Increased for better spacing
+  const GAP_Y = 150  // Increased for better spacing
 
   nodes.forEach((node, index) => {
     const row = Math.floor(index / COLS)
@@ -99,20 +99,24 @@ function toFlowNodes(nodes, filter, extraFilter, visualMode = 'default') {
   console.log(`Positioned ${positioned.length} nodes`)
 
   return positioned.map((n, i) => {
-    // Visual Reasoning Status Colors
+    // Visual Reasoning Status Colors with Severity Encoding
     let bg = TYPE_COLOR[n.type] || TYPE_COLOR.entity
     let border = '1px solid #cfc7bd'
+    let boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
 
-    // React to UI Status (Visual Reasoning)
+    // React to UI Status (Visual Reasoning) with enhanced severity
     if (n.ui_status === 'critical') {
       bg = '#fef2f2' // Red
-      border = '2px solid #ef4444'
+      border = '3px solid #ef4444' // Thicker border
+      boxShadow = '0 0 20px rgba(239, 68, 68, 0.4), 0 4px 12px rgba(239, 68, 68, 0.2)' // Red glow
     } else if (n.ui_status === 'conflict') {
       bg = '#fff7ed' // Orange
-      border = '2px solid #f97316'
+      border = '3px solid #f97316'
+      boxShadow = '0 0 16px rgba(249, 115, 22, 0.3), 0 4px 10px rgba(249, 115, 22, 0.15)'
     } else if (n.ui_status === 'warning') {
       bg = '#fffbeb' // Yellow
       border = '2px solid #f59e0b'
+      boxShadow = '0 0 12px rgba(245, 158, 11, 0.25), 0 4px 8px rgba(245, 158, 11, 0.12)'
     } else if (n.ui_status === 'updated') {
       bg = '#eff6ff' // Blue
       border = '2px solid #3b82f6'
@@ -133,12 +137,12 @@ function toFlowNodes(nodes, filter, extraFilter, visualMode = 'default') {
         border: border,
         color: '#2b2a28',
         borderRadius: '12px',
-        padding: '16px 20px',
+        padding: '18px 24px', // Increased padding
         fontWeight: 600,
-        fontSize: 13,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        width: '200px', // Fixed width
-        height: '80px', // Fixed height
+        fontSize: 14, // Slightly larger text
+        boxShadow: boxShadow,
+        width: '240px', // Increased from 200px (+20%)
+        height: '100px', // Increased from 80px (+25%)
         textAlign: 'center',
         cursor: 'pointer',
         display: 'flex',
@@ -164,7 +168,7 @@ function toFlowEdges(edges, nodesIndex) {
     animated: e.relation_type === 'made_by',
     style: {
       stroke: '#b7aea4',
-      strokeWidth: 2,
+      strokeWidth: 3, // Increased from 2 to 3 (+50%)
     },
     labelStyle: {
       fill: '#7c746c',

@@ -2,6 +2,9 @@ import { useMemo, useState, useEffect } from 'react'
 import IntelligencePanel from '../components/features/IntelligencePanel/IntelligencePanel'
 import KnowledgeGraph from '../components/features/KnowledgeGraph/KnowledgeGraph'
 import SituationBrief from '../components/features/SituationBrief/SituationBrief'
+import Timeline from '../components/features/Timeline/Timeline'
+import ConflictDetection from '../components/features/ConflictDetection/ConflictDetection'
+import './CommandCenter.css'
 
 const conflictRegex = /conflict|risk|blocker|delay|issue/i
 
@@ -23,8 +26,38 @@ export default function CommandCenter({
   agentStatus,
   queryResult,
   processing,
+  onClearQuery, // Add clear callback
+  onNavigateToNode // Add navigation callback
 }) {
   const [visualMode, setVisualMode] = useState('default')
+  const [activeTab, setActiveTab] = useState('brief') // 'brief', 'timeline', 'conflicts'
+
+  // Handler for action clicks
+  const handleAction = (action) => {
+    // Parse the action to determine what to do
+    const actionLower = action.toLowerCase();
+    
+    if (actionLower.includes('notify')) {
+      // Extract team name (e.g., "Notify Identity Team" -> "Identity")
+      const teamMatch = action.match(/notify\s+(\w+)\s+team/i);
+      if (teamMatch) {
+        const teamName = teamMatch[1];
+        alert(`📧 Notification sent to ${teamName} Team!\n\nAction: ${action}`);
+        // TODO: In production, this would trigger actual notifications
+      } else {
+        alert(`📧 Notification sent!\n\nAction: ${action}`);
+      }
+    } else if (actionLower.includes('confirm') || actionLower.includes('pricing')) {
+      alert(`✅ Action initiated!\n\nAction: ${action}\n\nThe relevant team has been notified.`);
+    } else if (actionLower.includes('schedule') || actionLower.includes('review')) {
+      alert(`📅 Meeting scheduled!\n\nAction: ${action}\n\nCalendar invite will be sent.`);
+    } else if (actionLower.includes('update') || actionLower.includes('sla')) {
+      alert(`📝 Update initiated!\n\nAction: ${action}\n\nDocumentation will be updated.`);
+    } else {
+      // Generic action handler
+      alert(`✅ Action recorded!\n\nAction: ${action}\n\nThis will be processed by the system.`);
+    }
+  }
 
   // Auto-switch visual mode when new intelligence result arrives
   useEffect(() => {
@@ -120,58 +153,57 @@ export default function CommandCenter({
   const isIntelligence = !!queryResult?.brief
 
   return (
-    <div className="page">
-      <div className="page-header" style={{ display: 'none' }}>
-        <h2>Command Center</h2>
-        <p>The daily starting point for founders, managers, and ICs.</p>
+    <div className="command-center-container">
+      {/* Tab Navigation */}
+      <div className="panel-tabs">
+        <button 
+          className={`tab ${activeTab === 'brief' ? 'active' : ''}`}
+          onClick={() => setActiveTab('brief')}
+        >
+          📋 Situation Brief
+        </button>
+        <button 
+          className={`tab ${activeTab === 'timeline' ? 'active' : ''}`}
+          onClick={() => setActiveTab('timeline')}
+        >
+          📅 Timeline
+        </button>
+        <button 
+          className={`tab ${activeTab === 'conflicts' ? 'active' : ''}`}
+          onClick={() => setActiveTab('conflicts')}
+        >
+          🔍 Conflicts
+        </button>
       </div>
 
-      {/* Top Section: Situation Brief (Chief of Staff View) */}
-      <SituationBrief
-        graph={graph}
-        graphMeta={graphMeta}
-        agentStatus={agentStatus}
-        intelligenceBrief={queryResult?.brief}
-        onAction={(action) => console.log('Situation Action:', action)}
-      />
+      {/* Tab Content */}
+      <div className="panel-content">
+        {activeTab === 'brief' && (
+          <SituationBrief
+            graph={graph}
+            graphMeta={graphMeta}
+            agentStatus={agentStatus}
+            intelligenceBrief={queryResult?.brief}
+            onAction={handleAction}
+            onClear={onClearQuery}
+            onNavigateToNode={onNavigateToNode}
+          />
+        )}
 
-      <section className="page-section">
-        <h3>Alignment Health</h3>
-        <div className="metric-grid">
-          <div className="metric-card">
-            <strong>Misalignment score</strong>
-            <small>Lowest topic coverage</small>
-            <div className="list-rows">
-              {alignmentSignals.map((t) => (
-                <div key={t.id} className="list-row">
-                  <span>{t.label}</span>
-                  <span>{Math.round((1 - t.ratio) * 100)}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="metric-card">
-            <strong>Communication overload</strong>
-            <small>Top connected people</small>
-            <div className="list-rows">
-              {overloadLeaders.map((p) => (
-                <div key={p.id} className="list-row">
-                  <span>{p.label}</span>
-                  <span>{p.degree} links</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+        {activeTab === 'timeline' && (
+          <Timeline
+            graph={graph}
+            queryResult={queryResult}
+          />
+        )}
 
-
-
-      {/* Interaction Section Removed */}
-      {/* Fallback space for displaying global query results if desired within page context, though modal handles it now */}
-
-      {/* Intelligence results are now displayed in the Sidebar */}
-
+        {activeTab === 'conflicts' && (
+          <ConflictDetection
+            queryResult={queryResult}
+            agentStatus={agentStatus}
+          />
+        )}
+      </div>
     </div>
   )
 }

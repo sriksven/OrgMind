@@ -53,6 +53,16 @@ class IntelligenceAgent(BaseAgent):
                 {"agent": "Router", "action": "Identified 3 blocked teams"}, 
                 {"agent": "Critic", "action": "Calculated $50k revenue risk"}
             ]
+            brief["answer"] = """I found 3 teams currently blocked:
+
+1. **Payments Team** (CRITICAL) - Blocked for 2 days waiting on the Identity API integration. This is delaying their release and has high revenue impact.
+
+2. **Sales Team** (WARNING) - Blocked for 1 day waiting on pricing confirmation. A deal is currently stalled because of this.
+
+3. **Support Team** (WARNING) - Blocked for 4 days waiting on the SLA update. This is causing inconsistent information being shared with customers.
+
+The most urgent action is to notify the Identity Team to unblock the Payments release. I also recommend confirming the pricing model with Sales immediately."""
+            
             # Graph: Red/Critical for blocked
             visual_nodes = [
                 {"id": "Payments", "label": "Payments Team", "type": "team", "ui_status": "critical"},
@@ -73,6 +83,16 @@ class IntelligenceAgent(BaseAgent):
             ]
             brief["business_impact"] = [{"area": "Operations", "severity": "medium", "detail": "Impacted: Sales, Finance, Support"}]
             brief["recommended_actions"] = [{"action": "Review v2 Pricing", "reasoning": "Ensure alignment"}]
+            brief["answer"] = """Three significant changes occurred in the last 24 hours:
+
+1. **Pricing Model Updated to v2** - The Product team finalized the new pricing structure. This affects Sales, Finance, and Customer Success teams. You should review this to ensure all stakeholders are aligned.
+
+2. **Refund SLA Modified** - Engineering updated the refund service level agreement from 48h to 24h. This impacts Support and Finance operations.
+
+3. **Q2 Budget Approved** - Finance received approval for the Q2 budget, which unlocks hiring and project funding across departments.
+
+Overall organizational health is at 94% and improving. I recommend scheduling a brief alignment meeting to ensure Sales and Support are fully briefed on the pricing and SLA changes."""
+            
             visual_nodes = [
                 {"id": "Pricing", "label": "Pricing v2", "type": "decision", "ui_status": "updated"}, # Blue
                 {"id": "SLA", "label": "Refund SLA", "type": "decision", "ui_status": "updated"},
@@ -90,6 +110,16 @@ class IntelligenceAgent(BaseAgent):
                 "Sales not notified of pricing", "Support using outdated docs", "Payments release delay"
             ]
             brief["recommended_actions"] = [{"action": "Broadcast Pricing", "reasoning": "Mitigate revenue risk"}]
+            brief["answer"] = """I've identified 3 critical risks that need immediate attention:
+
+1. **Sales Team Not Informed of Pricing Changes** (HIGH RISK) - The Sales team hasn't been notified about the v2 pricing update. This creates significant revenue risk as they may be quoting outdated prices to prospects. Estimated impact: $50k+ in potential deal confusion.
+
+2. **Support Using Outdated Documentation** (MEDIUM RISK) - The Support team is still referencing old refund guidelines (14 days outdated). This leads to inconsistent customer communication and potential customer satisfaction issues.
+
+3. **Payments Release Delayed** (MEDIUM RISK) - The Payments team has been blocked for 2 days waiting on Identity API integration, putting the Q1 release timeline at risk.
+
+Your organizational health score is at 82% and declining. The most critical action right now is to broadcast the pricing changes to Sales and Customer Success teams to prevent revenue impact. I recommend doing this within the next 2 hours."""
+            
             visual_nodes = [
                 {"id": "Sales", "label": "Sales", "type": "team", "ui_status": "critical"}, # Red
                 {"id": "Support", "label": "Support", "type": "team", "ui_status": "warning"},
@@ -104,6 +134,17 @@ class IntelligenceAgent(BaseAgent):
             brief["executive_insight"] = {"health_score": 90, "trend": "stable", "risks": 2}
             brief["risks"] = ["Sales (Not Informed)", "Customer Success (Not Informed)"]
             brief["recommended_actions"] = [{"action": "Notify Sales & CS", "reasoning": "Close communication loop"}]
+            brief["answer"] = """Based on the recent pricing v2 update, these teams need to be informed immediately:
+
+**Not Yet Informed (URGENT):**
+- Sales Team - They're actively quoting prices and must know about the changes
+- Customer Success Team - They handle customer inquiries and renewals
+
+**Already Informed:**
+- Product Team - They initiated the pricing change
+
+The communication gap poses a moderate revenue risk. I recommend sending a broadcast message to Sales and Customer Success within the next hour with the new pricing structure and key talking points."""
+            
             visual_nodes = [
                 {"id": "Pricing", "label": "Pricing v2", "type": "decision", "ui_status": "updated"},
                 {"id": "Sales", "label": "Sales", "type": "team", "ui_status": "warning"}, # Yellow (Not informed)
@@ -121,6 +162,16 @@ class IntelligenceAgent(BaseAgent):
                 {"type": "Gap", "description": "Engineering → Support (SLA change missing)"}
             ]
             brief["recommended_actions"] = [{"action": "Schedule Sync", "reasoning": "Bridge Prod-Sales gap"}]
+            brief["answer"] = """I've detected 2 communication breakdowns in the last 7 days:
+
+1. **Product → Sales Gap** - Product made pricing decisions but didn't propagate them to Sales. This is causing Sales to work with outdated information during customer conversations.
+
+2. **Engineering → Support Gap** - Engineering updated the refund SLA but didn't inform Support. Support is still telling customers the old 48-hour timeline when it's actually 24 hours now.
+
+Your organizational health is at 78% (declining trend). These gaps are creating operational friction and customer confusion. I recommend:
+- Schedule an immediate sync between Product and Sales to align on pricing
+- Create a standard notification process when SLAs or customer-facing policies change"""
+            
             visual_nodes = [
                 {"id": "Product", "label": "Product", "type": "team", "ui_status": "warning"},
                 {"id": "Sales", "label": "Sales", "type": "team", "ui_status": "warning"},
@@ -201,6 +252,20 @@ class IntelligenceAgent(BaseAgent):
              # Default Fallback
             brief["summary"] = "Organization Overview"
             brief["changes"] = ["Refactored Intelligence Agent", "Updated Interaction Model"]
+            brief["answer"] = """I'm your organizational intelligence partner. Here's what I can help you with:
+
+**Quick Insights:**
+- Who is blocked? - Shows teams waiting on decisions or dependencies
+- What changed today? - Recent organizational updates and decisions
+- What are the biggest risks? - Current risks affecting your organization
+
+**Deep Analysis:**
+- Communication breakdown analysis
+- Decision impact assessment
+- Team overload detection
+- Knowledge freshness checks
+
+Try asking me one of the questions above, or ask about specific teams, decisions, or risks in your organization."""
         
         # Build Edges for Visuals (Simple Star Topology for Demo)
         visual_edges = []
@@ -219,5 +284,5 @@ class IntelligenceAgent(BaseAgent):
                 "nodes": visual_nodes,
                 "edges": visual_edges
             },
-            "answer": brief["summary"]
+            "answer": brief.get("answer", brief["summary"])
         }

@@ -4,7 +4,7 @@ import IntelligencePanel from '../../features/IntelligencePanel/IntelligencePane
 import KnowledgeGraph from '../../features/KnowledgeGraph/KnowledgeGraph'
 import './Sidebar.css'
 
-export default function Sidebar({ onQuery, processing, queryResult }) {
+export default function Sidebar({ onQuery, processing, queryResult, onClearQuery }) {
   const [question, setQuestion] = useState('')
   const [visualMode, setVisualMode] = useState('default')
   const [expandedGraph, setExpandedGraph] = useState(false)
@@ -47,6 +47,54 @@ export default function Sidebar({ onQuery, processing, queryResult }) {
   const visualData = queryResult?.visual_reasoning
   const answer = queryResult?.answer || queryResult?.result
 
+  const handleClearAnswer = () => {
+    // Clear the question and the entire query result
+    setQuestion('')
+    // Call the parent callback to clear the entire intelligence view
+    if (onClearQuery) {
+      onClearQuery()
+    }
+  }
+
+  const [showFullAnswer, setShowFullAnswer] = useState(false);
+  
+  // Reset showFullAnswer when queryResult changes
+  useEffect(() => {
+    setShowFullAnswer(false);
+  }, [queryResult]);
+  
+  // Convert markdown-style text to HTML
+  const renderMarkdown = (text) => {
+    if (!text) return text;
+    
+    // Convert **bold** to <strong>
+    let formatted = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert numbered lists
+    formatted = formatted.replace(/^\d+\.\s+/gm, '');
+    
+    return formatted;
+  };
+
+  // Create condensed summary from answer
+  const getCondensedSummary = (answer) => {
+    if (!answer) return null;
+    
+    // Extract key metrics from the answer
+    const teamsMatch = answer.match(/(\d+)\s+team/i);
+    const risksMatch = answer.match(/(\d+)\s+(critical\s+)?risk/i);
+    const blockedMatch = answer.match(/blocked for (\d+\s+\w+)/i);
+    
+    return {
+      teams: teamsMatch ? teamsMatch[1] : null,
+      risks: risksMatch ? risksMatch[1] : null,
+      blocked: blockedMatch ? blockedMatch[1] : null,
+      firstLine: answer.split('\n')[0] || answer.substring(0, 100)
+    };
+  };
+  
+  const summary = answer ? getCondensedSummary(answer) : null;
+
   return (
     <aside className="sidebar-ask">
       <div className="sidebar-header">
@@ -75,34 +123,87 @@ export default function Sidebar({ onQuery, processing, queryResult }) {
         </div>
 
         {/* Smart Prompts */}
-        {!hasResult && (
-          <div className="smart-prompts">
-            <span className="prompt-label">Try asking:</span>
-            <div className="prompt-list" style={{ display: 'grid', gap: '8px' }}>
-              {[
-                "Who is blocked?",
-                "What changed today?",
-                "What are the biggest risks?",
-                "Who needs to know about pricing?",
-                "Where is communication failing?",
-                "Which teams are overloaded?",
-                "What decisions have the highest impact?",
-                "Where is conflicting information?",
-                "What knowledge is outdated?",
-                "What should leadership focus on?"
-              ].map((prompt, i) => (
-                <button
-                  key={i}
-                  className="prompt-chip"
-                  onClick={() => setQuestion(prompt)}
-                  style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
+        <div className="smart-prompts">
+          <span className="prompt-label">Try asking:</span>
+          <div className="prompt-list" style={{ display: 'grid', gap: '8px' }}>
+            {[
+              "Who is blocked?",
+              "What changed today?",
+              "What are the biggest risks?"
+            ].map((prompt, i) => (
+              <button
+                key={i}
+                className="prompt-chip"
+                onClick={() => setQuestion(prompt)}
+                style={{ textAlign: 'left', justifyContent: 'flex-start' }}
+              >
+                {prompt}
+              </button>
+            ))}
           </div>
-        )}
+
+          {/* Answer Box placed below questions */}
+          {(hasResult || processing) && (
+            <div className="sidebar-answer-box">
+              <div className="answer-header">
+                <div className="answer-header-left">
+                  <span className="answer-icon">✨</span>
+                  <span className="answer-title">AI Analysis</span>
+                </div>
+                {hasResult && (
+                  <button className="answer-close-btn" onClick={handleClearAnswer} title="Clear answer">
+                    ✕
+                  </button>
+                )}
+              </div>
+              <div className="answer-content">
+                {processing ? (
+                  <span className="typing-indicator">Analyzing...</span>
+                ) : summary ? (
+                  <>
+                    <div className="answer-summary">
+                      {summary.teams && (
+                        <div className="summary-stat">
+                          <strong>{summary.teams}</strong> teams blocked
+                        </div>
+                      )}
+                      {summary.risks && (
+                        <div className="summary-stat risk">
+                          <strong>{summary.risks}</strong> revenue risk{summary.risks > 1 ? 's' : ''}
+                        </div>
+                      )}
+                      {summary.blocked && (
+                        <div className="summary-detail">
+                          Primary issue: {summary.blocked}
+                        </div>
+                      )}
+                    </div>
+                    {!showFullAnswer && (
+                      <button className="show-more-btn" onClick={() => setShowFullAnswer(true)}>
+                        Show full analysis →
+                      </button>
+                    )}
+                    {showFullAnswer && (
+                      <>
+                        <div 
+                          className="answer-text-full"
+                          dangerouslySetInnerHTML={{ __html: renderMarkdown(answer) }}
+                        />
+                        <button className="show-less-btn" onClick={() => setShowFullAnswer(false)}>
+                          Show less ↑
+                        </button>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div className="answer-text">
+                    {answer || "No information available at this time."}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Result Area - Only shows when result exists */}
