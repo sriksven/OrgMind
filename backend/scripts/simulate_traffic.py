@@ -3,7 +3,7 @@ import json
 import os
 import sys
 import httpx
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Configuration
 DATA_FILE = "data/simulation_emails.json"
@@ -44,7 +44,10 @@ async def main():
     # For a 24-hour simulation running hourly, we can map:
     # Hour % Total Batches -> Batch Index
     # This ensures it loops through the content across the day.
-    current_hour = datetime.utcnow().hour
+    
+    # Use timezone-aware UTC (fixes DeprecationWarning)
+    current_hour = datetime.now(timezone.utc).hour
+    
     batch_index = current_hour % len(batches)
     
     batch = batches[batch_index]
