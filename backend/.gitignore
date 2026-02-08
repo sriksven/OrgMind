@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.env
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (Enron)
+data/raw/
+data/processed/enron_10k.csv
+data/processed/enron_200.csv
+data/processed/enron_entities.json
+data/processed/knowledge_graph.pkl
+data/processed/graph_viz.json
