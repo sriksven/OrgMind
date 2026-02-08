@@ -18,9 +18,9 @@ export default function SituationBrief({
     // Get today's date formatted nicely
     const today = useMemo(() => {
         const date = new Date();
-        return date.toLocaleDateString('en-US', { 
-            weekday: 'short', 
-            month: 'short', 
+        return date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
             day: 'numeric',
             year: 'numeric'
         });
@@ -31,11 +31,7 @@ export default function SituationBrief({
         if (isIntelligenceMode && brief.executive_insight) {
             return brief.executive_insight;
         }
-        // Default Mock Logic with better color thresholds
-        let score = 88;
-        let trend = 'stable';
-        let risks = 3;
-        return { health_score: score, trend, risks };
+        return { health_score: 0, trend: 'stable', risks: 0 };
     }, [isIntelligenceMode, brief]);
 
     // Determine health score class based on proper thresholds
@@ -51,13 +47,13 @@ export default function SituationBrief({
     // Extract team/entity names from blockers to find nodes
     const handleNavigateToEntity = (entityName) => {
         if (!onNavigateToNode || !graph?.nodes) return;
-        
+
         // Find the node with matching name (case-insensitive)
-        const node = graph.nodes.find(n => 
+        const node = graph.nodes.find(n =>
             n.label?.toLowerCase() === entityName.toLowerCase() ||
             n.id?.toLowerCase() === entityName.toLowerCase()
         );
-        
+
         if (node) {
             onNavigateToNode(node);
         } else {
@@ -69,24 +65,16 @@ export default function SituationBrief({
     const blockers = Array.isArray(brief.blockers) ? brief.blockers : [];
     const rootCauses = Array.isArray(brief.root_causes) ? brief.root_causes : [];
     const impact = Array.isArray(brief.business_impact) ? brief.business_impact : [];
-    
+
     // Default actions - always show when not in intelligence mode
-    const defaultActions = [
-        { action: "Notify Sales", reasoning: "Standard daily sync" },
-        { action: "Create Summary", reasoning: "Weekly report due" },
-        { action: "Schedule Review", reasoning: "Risks detected" }
-    ];
-    
-    const actions = isIntelligenceMode && Array.isArray(brief.recommended_actions) 
-        ? brief.recommended_actions 
+    const defaultActions = [];
+
+    const actions = isIntelligenceMode && Array.isArray(brief.recommended_actions)
+        ? brief.recommended_actions
         : defaultActions;
 
     // Default view fallback data
-    const defaultRisks = [
-        "Sales not notified of pricing change",
-        "Support documentation outdated",
-        "Identity API dependency" // moved from blockers for default view simplicity
-    ];
+    const defaultRisks = [];
 
     return (
         <div className={`situation-card ${isIntelligenceMode ? 'mode-intelligence' : ''}`}>
@@ -153,8 +141,8 @@ export default function SituationBrief({
                             {blockers.map((b, i) => (
                                 <div key={i} className="blocker-item">
                                     <div className="blocker-main">
-                                        <span 
-                                            className="blocker-subject clickable" 
+                                        <span
+                                            className="blocker-subject clickable"
                                             onClick={() => handleNavigateToEntity(b.subject)}
                                             title={`View ${b.subject} in graph`}
                                         >

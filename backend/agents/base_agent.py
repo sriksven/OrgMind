@@ -24,6 +24,7 @@ class BaseAgent(ABC):
         self.role = role or ""
         self.config = config or {}
         self.reasoning_log: list[dict[str, Any]] = []
+        self.stats = {"total_calls": 0, "success_count": 0, "success_rate": 100}
 
         self._api_key = os.getenv("OPENAI_API_KEY")
         self._model_name = os.getenv("OPENAI_MODEL", "gpt-4o")
@@ -39,6 +40,15 @@ class BaseAgent(ABC):
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         )
+
+    def update_stats(self, success: bool = True) -> None:
+        """Update agent execution statistics."""
+        self.stats["total_calls"] += 1
+        if success:
+            self.stats["success_count"] += 1
+        
+        if self.stats["total_calls"] > 0:
+            self.stats["success_rate"] = int((self.stats["success_count"] / self.stats["total_calls"]) * 100)
 
     def get_recent_reasoning(self, limit: int = 10) -> list[dict[str, Any]]:
         return self.reasoning_log[-limit:]

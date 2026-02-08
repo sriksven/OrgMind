@@ -40,6 +40,8 @@ class Coordinator(BaseAgent):
         self.log_reasoning("Coordinator received new info", {"keys": sorted(list(info.keys()))}, confidence=0.9)
 
         critic_result = await self.critic.process({"action": "detect_conflicts", **info})
+        self.critic.update_stats()
+
         if critic_result.get("conflict"):
             out = {
                 "timestamp": time.time(),
@@ -51,7 +53,10 @@ class Coordinator(BaseAgent):
             return {"conflict": True, "critic": critic_result, "execution": out}
 
         memory_result = await self.memory.process({"action": "update_knowledge", **info})
+        self.memory.update_stats()
+        
         router_result = await self.router.process({"action": "route_information", **info})
+        self.router.update_stats()
 
         out = {
             "timestamp": time.time(),
@@ -76,10 +81,10 @@ class Coordinator(BaseAgent):
     def get_agent_status(self) -> dict[str, Any]:
         return {
             "agents": {
-                "critic": {"capabilities": self.critic.get_capabilities(), "recent_reasoning": self.critic.get_recent_reasoning()},
-                "memory": {"capabilities": self.memory.get_capabilities(), "recent_reasoning": self.memory.get_recent_reasoning()},
-                "router": {"capabilities": self.router.get_capabilities(), "recent_reasoning": self.router.get_recent_reasoning()},
-                "intelligence": {"capabilities": self.intelligence.get_capabilities(), "recent_reasoning": self.intelligence.get_recent_reasoning()},
+                "critic": {"capabilities": self.critic.get_capabilities(), "recent_reasoning": self.critic.get_recent_reasoning(), "stats": self.critic.stats},
+                "memory": {"capabilities": self.memory.get_capabilities(), "recent_reasoning": self.memory.get_recent_reasoning(), "stats": self.memory.stats},
+                "router": {"capabilities": self.router.get_capabilities(), "recent_reasoning": self.router.get_recent_reasoning(), "stats": self.router.stats},
+                "intelligence": {"capabilities": self.intelligence.get_capabilities(), "recent_reasoning": self.intelligence.get_recent_reasoning(), "stats": self.intelligence.stats},
             },
             "graph": self.memory.get_graph_state(),
             "recent_executions": self.execution_log[-10:],
@@ -93,6 +98,7 @@ class Coordinator(BaseAgent):
         # Direct routing for intelligence queries
         if input_data.get("intent") == "intelligence":
             result = await self.intelligence.process(input_data)
+            self.intelligence.update_stats()
             return {"coordinator": True, "target": "intelligence", "result": result}
 
         # Treat payloads with 'content' as new information unless explicitly intent-routed.
@@ -103,6 +109,7 @@ class Coordinator(BaseAgent):
         target = route_result.get("target_agent", "memory")
         agent = self._agents.get(target, self.memory)
         result = await agent.process(route_result.get("payload", input_data))
+        agent.update_stats()
 
         if self.config.get("critique_enabled", True):
             critique = await self.critic.process({"content": result, "source_agent": target})

@@ -205,6 +205,9 @@ async def query_knowledge(payload: Query):
     app.state.stats["requests_total"] += 1
     app.state.stats["query"]["count"] += 1
     try:
+        if payload.intent == "status":
+             return await coordinator.process({"intent": "status"})
+
         # Check for explicit intelligence intent or keywords
         q = payload.question.lower()
         if payload.intent == "intelligence" or any(k in q for k in ["brief", "situation", "risk", "health", "overview"]):
