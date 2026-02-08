@@ -2,7 +2,8 @@
 .situation-card {
     background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%);
     border: 1px solid #e5e7eb;
-    border-radius: 20px;
+    border-top: none;
+    border-radius: 0 0 16px 16px;
     padding: 2rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
     font-family: 'Inter', sans-serif;
