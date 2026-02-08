@@ -126,10 +126,29 @@ http://127.0.0.1:8000/docs
 
 ## Project Structure
 
-- **backend/** - Contains all Python code, API logic, and AI agents.
-- **frontend/** - Contains the React application and UI components.
-- **docs/** - Additional documentation and design notes.
-- **data/** - Storage for the knowledge graph and simulation data.
+```
+OrgMind/
+├── backend/                  # Python FastAPI application
+│   ├── agents/               # AI Agents (Intelligence, Coordinator)
+│   ├── data/                 # Data storage (graphs, simulation data)
+│   ├── data_pipeline/        # Ingestion and processing logic
+│   ├── knowledge_graph/      # NetworkX graph builder
+│   ├── scripts/              # Utility scripts (simulation)
+│   ├── tests/                # Unit and integration tests
+│   ├── main.py               # API entry point
+│   └── requirements.txt      # Python dependencies
+│
+├── frontend/                 # React application
+│   ├── src/
+│   │   ├── components/       # UI Components
+│   │   │   ├── features/     # Key features (Graph, Brief, etc.)
+│   │   │   └── layout/       # Layout components (Sidebar)
+│   │   ├── services/         # API client services
+│   │   └── App.jsx           # Main application wrapper
+│   └── package.json          # Node dependencies
+│
+└── docs/                     # Documentation and design files
+```
 
 ## License
 
