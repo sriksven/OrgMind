@@ -1,4 +1,4 @@
-# 🧠 OrgMind - AI Chief of Staff
+# OrgMind - AI Chief of Staff
 
 **An AI-powered organizational intelligence system that turns communication into structured, versioned, visual knowledge.**
 
@@ -9,30 +9,30 @@
 
 ---
 
-## ✨ What is OrgMind?
+## What is OrgMind?
 
 OrgMind is your company's organizational brain - an AI system that:
 
-- 📊 **Builds a living knowledge graph** from emails, decisions, and communications
-- 🤖 **Uses multi-agent AI** to understand, extract, and organize information
-- 🔍 **Answers natural language questions** about your organization
-- 📈 **Tracks decisions and stakeholders** over time
-- 🎨 **Visualizes relationships** between people, topics, and decisions
+- **Builds a living knowledge graph** from emails, decisions, and communications
+- **Uses multi-agent AI** to understand, extract, and organize information
+- **Answers natural language questions** about your organization
+- **Tracks decisions and stakeholders** over time
+- **Visualizes relationships** between people, topics, and decisions
 
 **Think of it as: Google Maps + Git + Slack — for organizational knowledge**
 
 ---
 
-## 🎯 Key Features
+## Key Features
 
 ### 1. Command Bar Interface (Cmd+K)
 Superhuman-style command palette for instant access to organizational intelligence.
 
 ### 2. Interactive Knowledge Graph
 Beautiful dark-themed visualization with:
-- 👥 **298 People** - Team members and stakeholders
-- 📝 **27 Decisions** - Key organizational choices
-- 🏷️ **150 Topics** - Projects, initiatives, and themes
+- **298 People** - Team members and stakeholders
+- **27 Decisions** - Key organizational choices
+- **150 Topics** - Projects, initiatives, and themes
 - **501 total nodes** with 26 relationships mapped
 
 ### 3. Multi-Agent AI System
@@ -62,7 +62,7 @@ Eye-friendly dark mode with:
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -91,7 +91,7 @@ make dev
 
 ---
 
-## 📊 Current Data
+## Current Data
 
 The system comes pre-loaded with realistic business data:
 
@@ -104,7 +104,7 @@ The system comes pre-loaded with realistic business data:
 
 ---
 
-## 🎮 Try It Out
+## Try It Out
 
 ### 1. Press `Cmd+K` (or `Ctrl+K`)
 Opens the command bar with example queries.
@@ -125,7 +125,7 @@ Click "AI Activity" in the navbar to see agents in action.
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 OrgMind/
@@ -153,7 +153,7 @@ OrgMind/
 
 ---
 
-## 🛠️ Development
+## Development
 
 ### Common Commands
 
@@ -203,14 +203,14 @@ npm run build
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Backend Tests
 Complete test suite with:
-- ✅ Unit tests for graph operations
-- ✅ Agent functionality tests
-- ✅ Data pipeline tests
-- ✅ Integration workflow tests
+- Unit tests for graph operations
+- Agent functionality tests
+- Data pipeline tests
+- Integration workflow tests
 
 ```bash
 cd backend
@@ -226,7 +226,7 @@ pytest -v
 
 ---
 
-## 🎨 UI Components
+## UI Components
 
 ### Implemented Features
 
@@ -258,7 +258,7 @@ pytest -v
 
 ---
 
-## 🤖 AI Agent System
+## AI Agent System
 
 ### Architecture
 
@@ -285,7 +285,7 @@ Coordinator → Orchestrates and responds
 
 ---
 
-## 📚 Data Pipeline
+## Data Pipeline
 
 ### Process Flow
 
@@ -312,7 +312,7 @@ API Responses → JSON
 
 ---
 
-## 🌐 API Endpoints
+## API Endpoints
 
 ### Available Endpoints
 
@@ -331,7 +331,7 @@ Visit http://127.0.0.1:8000/docs when running the backend.
 
 ---
 
-## 📈 Performance
+## Performance
 
 ### Metrics
 
@@ -349,7 +349,7 @@ Visit http://127.0.0.1:8000/docs when running the backend.
 
 ---
 
-## 🔒 Security
+## Security
 
 - Environment-based configuration
 - API key management
@@ -359,7 +359,7 @@ Visit http://127.0.0.1:8000/docs when running the backend.
 
 ---
 
-## 🚢 Deployment
+## Deployment
 
 ### Development
 
@@ -386,7 +386,7 @@ npm run build
 
 ---
 
-## 📖 Documentation
+## Documentation
 
 Comprehensive documentation in `/docs`:
 
@@ -398,7 +398,7 @@ Comprehensive documentation in `/docs`:
 
 ---
 
-## 🤝 Built With
+## Built With
 
 ### Backend
 - **FastAPI** - Modern Python web framework
@@ -418,26 +418,26 @@ Comprehensive documentation in `/docs`:
 
 ---
 
-## 📄 License
+## License
 
 MIT License - See LICENSE file
 
 ---
 
-## 🏆 Project Stats
+## Project Stats
 
 **Built For:** AI Hackathon - Organizational Intelligence Track
 
 ### Current Implementation
 
-- ✅ Multi-agent AI system
-- ✅ Interactive knowledge graph
-- ✅ Natural language queries
-- ✅ Decision tracking
-- ✅ Dark theme UI
-- ✅ Real-time updates
-- ✅ Comprehensive tests
-- ✅ Professional structure
+- Multi-agent AI system
+- Interactive knowledge graph
+- Natural language queries
+- Decision tracking
+- Dark theme UI
+- Real-time updates
+- Comprehensive tests
+- Professional structure
 
 ### Data Scale
 
@@ -450,7 +450,7 @@ MIT License - See LICENSE file
 
 ---
 
-## 📞 Quick Reference
+## Quick Reference
 
 ### Access Points
 
@@ -470,7 +470,7 @@ make help     # Show all commands
 
 ---
 
-**OrgMind** - Your organization's AI-powered brain 🧠✨
+**OrgMind** - Your organization's AI-powered brain
 
 **Version:** 1.0.0  
 **Status:** Fully Operational  
