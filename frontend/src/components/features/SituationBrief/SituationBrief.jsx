@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import './SituationBrief.css';
+import React, { useMemo } from 'react'
+import { buildLiveBrief } from '../../../utils/liveBrief'
+import './SituationBrief.css'
 
 export default function SituationBrief({
     graphMeta,
@@ -11,9 +11,13 @@ export default function SituationBrief({
     onClear, // Add clear callback
     onNavigateToNode // Add navigation callback
 }) {
-    // Mode Detection
-    const isIntelligenceMode = !!intelligenceBrief;
-    const brief = intelligenceBrief || {};
+    const hasQueryBrief = !!intelligenceBrief
+    const liveBrief = useMemo(() => buildLiveBrief(graph), [graph])
+    const brief = intelligenceBrief || liveBrief || {}
+
+    // Always show the “intelligence” style card; only show the clear (✕) button
+    // when we are displaying an actual query-driven intelligence brief.
+    const showIntelligenceUI = true
 
     // Get today's date formatted nicely
     const today = useMemo(() => {
@@ -28,11 +32,11 @@ export default function SituationBrief({
 
     // 1. Executive Insight (Health Score)
     const executiveInsight = useMemo(() => {
-        if (isIntelligenceMode && brief.executive_insight) {
-            return brief.executive_insight;
+        if (brief.executive_insight) {
+            return brief.executive_insight
         }
         return { health_score: 0, trend: 'stable', risks: 0 };
-    }, [isIntelligenceMode, brief]);
+    }, [brief]);
 
     // Determine health score class based on proper thresholds
     const getHealthClass = (score) => {
@@ -62,29 +66,38 @@ export default function SituationBrief({
     };
 
     // 3. Main Content Data (Defensive)
-    const blockers = Array.isArray(brief.blockers) ? brief.blockers : [];
+    const blockers = Array.isArray(brief.blockers) ? brief.blockers : []
+    const risks = Array.isArray(brief.risks) ? brief.risks : []
+    const changes = Array.isArray(brief.changes) ? brief.changes : []
     const rootCauses = Array.isArray(brief.root_causes) ? brief.root_causes : [];
     const impact = Array.isArray(brief.business_impact) ? brief.business_impact : [];
 
-    // Default actions - always show when not in intelligence mode
-    const defaultActions = [];
+    const actions = Array.isArray(brief.recommended_actions) ? brief.recommended_actions : []
 
-    const actions = isIntelligenceMode && Array.isArray(brief.recommended_actions)
-        ? brief.recommended_actions
-        : defaultActions;
+    const normalizeListItem = (item) => {
+        if (typeof item === 'string') return item
+        return item?.subject || item?.label || item?.title || item?.id || item?.detail || '—'
+    }
 
-    // Default view fallback data
-    const defaultRisks = [];
+    const normalizeBlocker = (b) => {
+        if (typeof b === 'string') return { subject: b }
+        return {
+            subject: b?.subject || b?.label || b?.title || b?.id || b?.detail || 'Unknown',
+            waiting_on: b?.waiting_on || '',
+            time_blocked: b?.time_blocked || '',
+            impact: b?.impact || '',
+        }
+    }
 
     return (
-        <div className={`situation-card ${isIntelligenceMode ? 'mode-intelligence' : ''}`}>
+        <div className={`situation-card ${showIntelligenceUI ? 'mode-intelligence' : ''}`}>
             {/* HEADER: Executive Summary */}
             <div className="situation-header">
                 <div className="header-left">
                     <h2 className="situation-title">
-                        {isIntelligenceMode ? (brief.summary || "Intelligence Brief") : "Situation Brief"}
+                        {brief.summary || "Situation Brief"}
                     </h2>
-                    {isIntelligenceMode ? (
+                    {showIntelligenceUI ? (
                         <div className="scope-context">
                             <span className="context-tag">{scope.context}</span>
                             <span className="context-tag">{scope.timeframe}</span>
@@ -109,7 +122,7 @@ export default function SituationBrief({
                             </div>
                         )}
                     </div>
-                    {isIntelligenceMode && onClear && (
+                    {hasQueryBrief && onClear && (
                         <button className="close-button" onClick={onClear} title="Clear intelligence view">
                             ✕
                         </button>
@@ -118,13 +131,14 @@ export default function SituationBrief({
             </div>
 
             {/* Executive Insight Banner - Only in Intelligence Mode */}
-            {isIntelligenceMode && blockers.length > 0 && (
+            {showIntelligenceUI && blockers.length > 0 && (
                 <div className="executive-insight-banner">
                     <div className="insight-icon">!</div>
                     <div className="insight-content">
                         <strong>{blockers.length} revenue risk{blockers.length > 1 ? 's' : ''} detected</strong>
                         <span className="insight-detail">
-                            {blockers[0]?.subject} {blockers[0]?.impact?.toLowerCase() || 'impacting operations'}
+                            {normalizeBlocker(blockers[0])?.subject}{' '}
+                            {(normalizeBlocker(blockers[0])?.impact || 'impacting operations').toLowerCase()}
                         </span>
                     </div>
                 </div>
@@ -134,51 +148,68 @@ export default function SituationBrief({
             <div className="situation-body">
 
                 {/* A. BLOCKERS / ISSUES (Center Stage) */}
-                {isIntelligenceMode && blockers.length > 0 ? (
+                {blockers.length > 0 ? (
                     <div className="brief-section">
                         <h3>Critical Blockers</h3>
                         <div className="blocker-list">
-                            {blockers.map((b, i) => (
+                            {blockers.map((b, i) => {
+                                const blocker = normalizeBlocker(b)
+                                return (
                                 <div key={i} className="blocker-item">
                                     <div className="blocker-main">
                                         <span
                                             className="blocker-subject clickable"
-                                            onClick={() => handleNavigateToEntity(b.subject)}
-                                            title={`View ${b.subject} in graph`}
+                                            onClick={() => handleNavigateToEntity(blocker.subject)}
+                                            title={`View ${blocker.subject} in graph`}
                                         >
-                                            {b.subject}
+                                            {blocker.subject}
                                         </span>
-                                        <span className="blocker-waiting">waiting on <strong>{b.waiting_on}</strong></span>
+                                        {blocker.waiting_on ? (
+                                            <span className="blocker-waiting">waiting on <strong>{blocker.waiting_on}</strong></span>
+                                        ) : null}
                                     </div>
-                                    <div className="blocker-meta">
-                                        <span className="time-badge">{b.time_blocked}</span>
-                                        <span className="impact-text">{b.impact}</span>
-                                    </div>
+                                    {(blocker.time_blocked || blocker.impact) ? (
+                                        <div className="blocker-meta">
+                                            {blocker.time_blocked ? <span className="time-badge">{blocker.time_blocked}</span> : null}
+                                            {blocker.impact ? <span className="impact-text">{blocker.impact}</span> : null}
+                                        </div>
+                                    ) : null}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                ) : !isIntelligenceMode ? (
-                    // Default View: Always show when not in intelligence mode
-                    <div className="brief-grid-default">
-                        <div className="brief-col">
-                            <h3>Risks & Blockers</h3>
-                            <ul className="situation-list risks">
-                                {defaultRisks.map((r, i) => <li key={i}>{r}</li>)}
-                            </ul>
-                        </div>
-                        <div className="brief-col">
-                            <h3>Recent Changes</h3>
-                            <ul className="situation-list changes">
-                                <li>Pricing updated by Product</li>
-                                <li>Refund SLA changed</li>
-                            </ul>
+                                )
+                            })}
                         </div>
                     </div>
                 ) : null}
 
+                {/* B. RISKS + CHANGES (Always Visible) */}
+                <div className="brief-grid-default">
+                    <div className="brief-col">
+                        <h3>Risks & Blockers</h3>
+                        <ul className="situation-list risks">
+                            {risks.length === 0 && blockers.length === 0 ? (
+                                <li>—</li>
+                            ) : null}
+                            {risks.map((r, i) => (
+                                <li key={`risk-${i}`}>{normalizeListItem(r)}</li>
+                            ))}
+                            {blockers.length === 0 ? null : blockers.map((b, i) => (
+                                <li key={`blocker-${i}`}>{normalizeListItem(b)}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="brief-col">
+                        <h3>Recent Changes</h3>
+                        <ul className="situation-list changes">
+                            {changes.length === 0 ? <li>—</li> : null}
+                            {changes.map((c, i) => (
+                                <li key={`change-${i}`}>{normalizeListItem(c)}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+
                 {/* B. BUSINESS IMPACT & ROOT CAUSE - Always Expanded */}
-                {isIntelligenceMode && (impact.length > 0 || rootCauses.length > 0) && (
+                {showIntelligenceUI && (impact.length > 0 || rootCauses.length > 0) && (
                     <div className="insight-grid">
                         {impact.length > 0 && (
                             <div className="insight-col">
@@ -228,7 +259,7 @@ export default function SituationBrief({
                 )}
 
                 {/* D. AGENT ACTIVITY FOOTER - Enhanced */}
-                {isIntelligenceMode && brief.agent_activity && brief.agent_activity.length > 0 && (
+                {hasQueryBrief && brief.agent_activity && brief.agent_activity.length > 0 && (
                     <div className="agent-footer">
                         <div style={{ fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', color: '#7c3aed', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
                             Agent Activity

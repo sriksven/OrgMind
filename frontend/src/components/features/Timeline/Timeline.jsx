@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import './Timeline.css';
+import React, { useMemo } from 'react'
+import { motion } from 'framer-motion'
+import './Timeline.css'
 
-export default function Timeline({ graph, queryResult }) {
+export default function Timeline({ graph, queryResult, intelligenceBrief }) {
   // Extract timeline events from graph and query results
   const events = useMemo(() => {
     const timelineEvents = [];
@@ -24,8 +24,9 @@ export default function Timeline({ graph, queryResult }) {
     }
 
     // Add blockers from intelligence brief
-    if (queryResult?.brief?.blockers) {
-      queryResult.brief.blockers.forEach((blocker, idx) => {
+    const brief = queryResult?.brief || intelligenceBrief
+    if (brief?.blockers) {
+      brief.blockers.forEach((blocker, idx) => {
         timelineEvents.push({
           id: `blocker-${idx}`,
           type: 'blocker',
@@ -33,7 +34,7 @@ export default function Timeline({ graph, queryResult }) {
           timestamp: new Date(Date.now() - (idx * 3600000)), // Stagger by hours
           icon: 'B',
           color: '#ef4444',
-          description: `Blocked: ${blocker.waiting_on}`,
+          description: `Blocked: ${blocker.waiting_on || blocker.waitingOn || '—'}`,
           metadata: blocker
         });
       });
@@ -57,7 +58,7 @@ export default function Timeline({ graph, queryResult }) {
 
     // Sort by timestamp (newest first)
     return timelineEvents.sort((a, b) => b.timestamp - a.timestamp);
-  }, [graph, queryResult]);
+  }, [graph, queryResult, intelligenceBrief]);
 
   const formatTime = (timestamp) => {
     const now = new Date();

@@ -4,6 +4,7 @@ import KnowledgeGraph from '../components/features/KnowledgeGraph/KnowledgeGraph
 import SituationBrief from '../components/features/SituationBrief/SituationBrief'
 import Timeline from '../components/features/Timeline/Timeline'
 import ConflictDetection from '../components/features/ConflictDetection/ConflictDetection'
+import { buildLiveBrief } from '../utils/liveBrief'
 import './CommandCenter.css'
 
 const conflictRegex = /conflict|risk|blocker|delay|issue/i
@@ -31,6 +32,7 @@ export default function CommandCenter({
 }) {
   const [visualMode, setVisualMode] = useState('default')
   const [activeTab, setActiveTab] = useState('brief') // 'brief', 'timeline', 'conflicts'
+  const liveBrief = useMemo(() => buildLiveBrief(graph), [graph])
 
   // Handler for action clicks
   const handleAction = (action) => {
@@ -194,6 +196,7 @@ export default function CommandCenter({
           <Timeline
             graph={graph}
             queryResult={queryResult}
+            intelligenceBrief={queryResult?.brief || liveBrief}
           />
         )}
 
