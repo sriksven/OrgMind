@@ -9,4 +9,5 @@ services:
       - key: ORG_GRAPH_PATH
         value: data/processed/knowledge_graph.pkl
       - key: CORS_ORIGINS
-        value: https://sriksven.github.io/OrgMind
+        # CORS origins must be scheme + host (no path)
+        value: https://sriksven.github.io
