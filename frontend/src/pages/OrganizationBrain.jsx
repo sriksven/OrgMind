@@ -20,9 +20,10 @@ export default function OrganizationBrain({
   const [showOutdated, setShowOutdated] = useState(false)
   const [showSilos, setShowSilos] = useState(false)
 
-  // Use intelligence graph if available, otherwise full graph
-  const displayGraph = visualReasoning || graph
-  const isIntelligenceMode = !!visualReasoning
+  // Use intelligence graph only if it has nodes, otherwise use full graph
+  const hasIntelligenceNodes = visualReasoning?.nodes && visualReasoning.nodes.length > 0
+  const displayGraph = hasIntelligenceNodes ? visualReasoning : graph
+  const isIntelligenceMode = hasIntelligenceNodes
 
   const nodes = displayGraph?.nodes || []
   const edges = displayGraph?.edges || []

@@ -278,6 +278,22 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
     return () => clearTimeout(t)
   }, [nodes.length, fitView, filter])
 
+  // Auto-center on selected node when it changes
+  useEffect(() => {
+    if (!selectedNode || !nodes.length) return
+    
+    const targetNode = nodes.find(n => String(n.id) === String(selectedNode.id))
+    if (targetNode?.position) {
+      setTimeout(() => {
+        setCenter(
+          targetNode.position.x + (targetNode.width || 240) / 2,
+          targetNode.position.y + (targetNode.height || 100) / 2,
+          { duration: 800, zoom: 1.5 }
+        )
+      }, 200)
+    }
+  }, [selectedNode?.id, nodes, setCenter])
+
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
