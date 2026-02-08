@@ -33,7 +33,7 @@ jobs:
       - name: Build
         working-directory: frontend
         env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL || 'https://orgmind.onrender.com' }}
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
         run: npm run build
 
