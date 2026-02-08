@@ -42,20 +42,20 @@ export default function CommandCenter({
       const teamMatch = action.match(/notify\s+(\w+)\s+team/i);
       if (teamMatch) {
         const teamName = teamMatch[1];
-        alert(`📧 Notification sent to ${teamName} Team!\n\nAction: ${action}`);
+        alert(`Notification sent to ${teamName} Team!\n\nAction: ${action}`);
         // TODO: In production, this would trigger actual notifications
       } else {
-        alert(`📧 Notification sent!\n\nAction: ${action}`);
+        alert(`Notification sent!\n\nAction: ${action}`);
       }
     } else if (actionLower.includes('confirm') || actionLower.includes('pricing')) {
-      alert(`✅ Action initiated!\n\nAction: ${action}\n\nThe relevant team has been notified.`);
+      alert(`Action initiated!\n\nAction: ${action}\n\nThe relevant team has been notified.`);
     } else if (actionLower.includes('schedule') || actionLower.includes('review')) {
-      alert(`📅 Meeting scheduled!\n\nAction: ${action}\n\nCalendar invite will be sent.`);
+      alert(`Meeting scheduled!\n\nAction: ${action}\n\nCalendar invite will be sent.`);
     } else if (actionLower.includes('update') || actionLower.includes('sla')) {
-      alert(`📝 Update initiated!\n\nAction: ${action}\n\nDocumentation will be updated.`);
+      alert(`Update initiated!\n\nAction: ${action}\n\nDocumentation will be updated.`);
     } else {
       // Generic action handler
-      alert(`✅ Action recorded!\n\nAction: ${action}\n\nThis will be processed by the system.`);
+      alert(`Action recorded!\n\nAction: ${action}\n\nThis will be processed by the system.`);
     }
   }
 
@@ -160,19 +160,19 @@ export default function CommandCenter({
           className={`tab ${activeTab === 'brief' ? 'active' : ''}`}
           onClick={() => setActiveTab('brief')}
         >
-          📋 Situation Brief
+          Situation Brief
         </button>
         <button 
           className={`tab ${activeTab === 'timeline' ? 'active' : ''}`}
           onClick={() => setActiveTab('timeline')}
         >
-          📅 Timeline
+          Timeline
         </button>
         <button 
           className={`tab ${activeTab === 'conflicts' ? 'active' : ''}`}
           onClick={() => setActiveTab('conflicts')}
         >
-          🔍 Conflicts
+          Conflicts
         </button>
       </div>
 

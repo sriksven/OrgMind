@@ -17,28 +17,28 @@ export default function Navbar({
       name: simpleMode ? 'Intelligence Agent' : 'Intelligence Agent',
       description: simpleMode ? 'Analyzes organizational data' : 'Intelligence briefs and analysis',
       color: '#3b82f6',
-      icon: '🧠'
+      icon: 'I'
     },
     {
       id: 'memory',
       name: simpleMode ? 'Memory Keeper' : 'Memory Agent',
       description: simpleMode ? 'Remembers everything about your company' : 'Graph and entity management',
       color: '#10b981',
-      icon: '💾'
+      icon: 'M'
     },
     {
       id: 'router',
       name: simpleMode ? 'Smart Router' : 'Router Agent',
       description: simpleMode ? 'Figures out who needs to know what' : 'Information routing and relevance',
       color: '#8b5cf6',
-      icon: '🎯'
+      icon: 'R'
     },
     {
       id: 'critic',
       name: simpleMode ? 'Fact Checker' : 'Critic Agent',
       description: simpleMode ? 'Catches mistakes and conflicts' : 'Validation and conflict detection',
       color: '#f59e0b',
-      icon: '🔍'
+      icon: 'C'
     }
   ]
 
@@ -58,7 +58,7 @@ export default function Navbar({
         {/* Left: Logo */}
         <div className="navbar-left">
           <div className="navbar-logo">
-            <span className="logo-icon">🧠</span>
+            <span className="logo-icon">O</span>
             <span className="logo-text">OrgMind</span>
           </div>
         </div>
@@ -70,17 +70,14 @@ export default function Navbar({
             title="Organization Stats"
           >
             <div className="stat-item">
-              <span className="stat-icon">👥</span>
               <span className="stat-value">{stats?.peopleCount || 0}</span>
               <span className="stat-label">People</span>
             </div>
             <div className="stat-item">
-              <span className="stat-icon">📋</span>
               <span className="stat-value">{stats?.decisionsCount || 0}</span>
               <span className="stat-label">Decisions</span>
             </div>
             <div className="stat-item">
-              <span className="stat-icon">🔗</span>
               <span className="stat-value">{stats?.connectionsCount || 0}</span>
               <span className="stat-label">Links</span>
             </div>
@@ -91,7 +88,6 @@ export default function Navbar({
             onClick={() => setShowAgents(!showAgents)}
             title={showAgents ? "Hide AI Activity" : "Show AI Activity"}
           >
-            <span className="button-icon">🤖</span>
             <span className="button-text">AI Activity</span>
             <span className={`chevron ${showAgents ? 'open' : ''}`}>▼</span>
           </button>

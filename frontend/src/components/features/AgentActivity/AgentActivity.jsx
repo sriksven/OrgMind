@@ -40,7 +40,7 @@ export default function AgentActivity({ agentStatus, queryResult, processing }) 
   const agentList = [
     {
       name: 'intelligence',
-      icon: '🧠',
+      icon: 'I',
       label: 'Intelligence Agent',
       color: '#3b82f6',
       description: 'Analyzes organizational data',
@@ -48,7 +48,7 @@ export default function AgentActivity({ agentStatus, queryResult, processing }) 
     },
     {
       name: 'critic',
-      icon: '🔍',
+      icon: 'C',
       label: 'Critic Agent',
       color: '#f59e0b',
       description: 'Detects conflicts & validates',
@@ -56,7 +56,7 @@ export default function AgentActivity({ agentStatus, queryResult, processing }) 
     },
     {
       name: 'memory',
-      icon: '💾',
+      icon: 'M',
       label: 'Memory Agent',
       color: '#10b981',
       description: 'Maintains knowledge graph',
@@ -64,7 +64,7 @@ export default function AgentActivity({ agentStatus, queryResult, processing }) 
     },
     {
       name: 'router',
-      icon: '🎯',
+      icon: 'R',
       label: 'Router Agent',
       color: '#8b5cf6',
       description: 'Routes information to teams',
@@ -105,7 +105,6 @@ export default function AgentActivity({ agentStatus, queryResult, processing }) 
     <div className="agent-activity-panel">
       <div className="activity-header">
         <div className="header-title">
-          <span className="header-icon">🤖</span>
           <h3>AI Activity</h3>
         </div>
         <div className="activity-status">

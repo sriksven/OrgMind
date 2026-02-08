@@ -61,7 +61,7 @@ export default function SituationBrief({
         if (node) {
             onNavigateToNode(node);
         } else {
-            alert(`ℹ️ "${entityName}" node not found in the current graph view.`);
+            alert(`"${entityName}" node not found in the current graph view.`);
         }
     };
 
@@ -132,7 +132,7 @@ export default function SituationBrief({
             {/* Executive Insight Banner - Only in Intelligence Mode */}
             {isIntelligenceMode && blockers.length > 0 && (
                 <div className="executive-insight-banner">
-                    <div className="insight-icon">⚠️</div>
+                    <div className="insight-icon">!</div>
                     <div className="insight-content">
                         <strong>{blockers.length} revenue risk{blockers.length > 1 ? 's' : ''} detected</strong>
                         <span className="insight-detail">
@@ -148,7 +148,7 @@ export default function SituationBrief({
                 {/* A. BLOCKERS / ISSUES (Center Stage) */}
                 {isIntelligenceMode && blockers.length > 0 ? (
                     <div className="brief-section">
-                        <h3>Critical Blockers 🛑</h3>
+                        <h3>Critical Blockers</h3>
                         <div className="blocker-list">
                             {blockers.map((b, i) => (
                                 <div key={i} className="blocker-item">
@@ -174,7 +174,7 @@ export default function SituationBrief({
                     // Default View: Always show when not in intelligence mode
                     <div className="brief-grid-default">
                         <div className="brief-col">
-                            <h3>Risks & Blockers ⚠️</h3>
+                            <h3>Risks & Blockers</h3>
                             <ul className="situation-list risks">
                                 {defaultRisks.map((r, i) => <li key={i}>{r}</li>)}
                             </ul>
@@ -194,7 +194,7 @@ export default function SituationBrief({
                     <div className="insight-grid">
                         {impact.length > 0 && (
                             <div className="insight-col">
-                                <h3>Business Impact 📉</h3>
+                                <h3>Business Impact</h3>
                                 <div className="impact-tags">
                                     {impact.map((imp, i) => (
                                         <div key={i} className={`impact-badge ${imp.severity}`}>
@@ -207,7 +207,7 @@ export default function SituationBrief({
                         )}
                         {rootCauses.length > 0 && (
                             <div className="insight-col">
-                                <h3>Root Causes 🔍</h3>
+                                <h3>Root Causes</h3>
                                 <div className="root-cause-list">
                                     {rootCauses.map((rc, i) => (
                                         <div key={i} className="root-cause-card">

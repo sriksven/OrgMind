@@ -17,7 +17,7 @@ export default function Timeline({ graph, queryResult }) {
             type: 'decision',
             title: decision.label || decision.id,
             timestamp: new Date(decision.date),
-            icon: '📋',
+            icon: 'D',
             color: '#3b82f6',
             description: decision.description || `Decision: ${decision.label}`
           });
@@ -33,7 +33,7 @@ export default function Timeline({ graph, queryResult }) {
           type: 'blocker',
           title: blocker.subject,
           timestamp: new Date(Date.now() - (idx * 3600000)), // Stagger by hours
-          icon: '🛑',
+          icon: 'B',
           color: '#ef4444',
           description: `Blocked: ${blocker.waiting_on}`,
           metadata: blocker
@@ -49,7 +49,7 @@ export default function Timeline({ graph, queryResult }) {
           type: 'routing',
           title: route.topic || 'Information Routed',
           timestamp: new Date(),
-          icon: '🎯',
+          icon: 'R',
           color: '#8b5cf6',
           description: `Sent to: ${route.targets?.join(', ') || 'teams'}`,
           metadata: route
@@ -166,12 +166,11 @@ export default function Timeline({ graph, queryResult }) {
       <div className="timeline-panel">
         <div className="timeline-header">
           <div className="header-title">
-            <span className="header-icon">📅</span>
             <h3>Timeline</h3>
           </div>
         </div>
         <div className="timeline-empty">
-          <div className="empty-icon">📭</div>
+          <div className="empty-icon">—</div>
           <p>No recent activity</p>
           <span className="empty-hint">Events will appear here as they happen</span>
         </div>
@@ -183,7 +182,6 @@ export default function Timeline({ graph, queryResult }) {
     <div className="timeline-panel">
       <div className="timeline-header">
         <div className="header-title">
-          <span className="header-icon">📅</span>
           <h3>Timeline</h3>
           <span className="timeline-subtitle">What changed recently</span>
         </div>

@@ -81,10 +81,10 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
 
   const getSeverityIcon = (severity) => {
     const icons = {
-      critical: '🚨',
-      high: '⚠️',
-      medium: '⚡',
-      low: 'ℹ️'
+      critical: '!',
+      high: '!',
+      medium: 'i',
+      low: 'i'
     };
     return icons[severity] || icons.medium;
   };
@@ -103,7 +103,6 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
       <div className="conflict-detection-panel all-clear">
         <div className="conflict-header">
           <div className="header-title">
-            <span className="header-icon">🔍</span>
             <h3>Conflict Detection</h3>
           </div>
           <div className="status-badge clear">
@@ -126,7 +125,6 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
     <div className="conflict-detection-panel has-conflicts">
       <div className="conflict-header">
         <div className="header-title">
-          <span className="header-icon">🔍</span>
           <h3>Conflict Detection</h3>
         </div>
         <div className="status-badge warning">
@@ -170,7 +168,7 @@ export default function ConflictDetection({ queryResult, agentStatus }) {
                     <p className="conflict-summary">{conflict.description}</p>
                     <div className="conflict-meta">
                       <span className="detected-by">
-                        🤖 {conflict.detectedBy}
+                        {conflict.detectedBy}
                       </span>
                       <span className="conflict-time">
                         {formatTimestamp(conflict.timestamp)}
