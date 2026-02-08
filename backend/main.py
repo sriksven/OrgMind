@@ -41,6 +41,7 @@ class NewInformation(BaseModel):
 
 class Query(BaseModel):
     question: str
+    intent: str | None = None
 
 
 def _export_graph_cached(app: FastAPI) -> None:
@@ -204,6 +205,14 @@ async def query_knowledge(payload: Query):
     app.state.stats["requests_total"] += 1
     app.state.stats["query"]["count"] += 1
     try:
+        # Check for explicit intelligence intent or keywords
+        q = payload.question.lower()
+        if payload.intent == "intelligence" or any(k in q for k in ["brief", "situation", "risk", "health", "overview"]):
+             res = await coordinator.process({"intent": "intelligence", "query": payload.question})
+             # Extract the result payload from the coordinator structure
+             return res.get("result", res)
+
+        # Legacy direct query
         return coordinator.memory.query_knowledge(payload.question)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

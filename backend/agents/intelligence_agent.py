@@ -19,263 +19,85 @@ class IntelligenceAgent(BaseAgent):
 
     async def process(self, task: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Process a query to generate an intelligence brief based on 10 specific scenarios.
+        Process a query to generate an intelligence brief using real-time graph data.
         """
         query = task.get("query", "").lower()
         logger.info(f"IntelligenceAgent processing: {query}")
 
-        # Default Structure
+        # 1. Gather Real-Time Insights from Graph
+        insights = self._analyze_graph()
+        
+        # 2. Structure the Brief
+        health_score = max(0, 100 - (len(insights["blockers"]) * 10) - (len(insights["risks"]) * 5))
+        trend = "stable" if health_score > 90 else "decaying"
+        
         brief = {
-            "summary": "Analyzing organizational state...",
-            "scope": {"context": "General", "timeframe": "Today", "issue_count": 0},
-            "executive_insight": {"health_score": 95, "trend": "stable", "risks": 0},
-            "blockers": [], "changes": [], "risks": [], "root_causes": [], 
-            "business_impact": [], "recommended_actions": [], "agent_activity": []
+            "summary": "Real-time Organizational Analysis",
+            "scope": {
+                "context": "Live Graph", 
+                "timeframe": "Current", 
+                "issue_count": len(insights["risks"]) + len(insights["blockers"])
+            },
+            "executive_insight": {
+                "health_score": health_score, 
+                "trend": trend, 
+                "risks": len(insights["risks"])
+            },
+            "blockers": insights["blockers"][:5],
+            "changes": insights["changes"][:5],
+            "risks": insights["risks"][:5],
+            "root_causes": [], # To be filled by LLM if needed
+            "business_impact": [],
+            "recommended_actions": [],
+            "answer": ""
         }
+
+        # 3. Generate Visual Nodes
         visual_nodes = []
+        for item in insights["risks"] + insights["blockers"] + insights["changes"]:
+             # Map string items to visual nodes if they are objects, or create mocks
+             if isinstance(item, dict) and "id" in item:
+                 visual_nodes.append({
+                     "id": item["id"], 
+                     "label": item.get("label", item["id"]), 
+                     "type": item.get("type", "topic"),
+                     "ui_status": "critical" if item in insights["blockers"] else "warning" if item in insights["risks"] else "updated"
+                 })
+
+        # 4. Synthesize Natural Language Answer using LLM
+        system_prompt = (
+            "You are an AI Organizational Intelligence Officer. Analyze the provided graph data."
+            "Generate a concise 'Executive Situation Brief'."
+            "Highlight critical risks, blockers, and recent changes."
+            "Provide 2-3 actionable recommendations."
+            "Keep the tone professional and direct."
+        )
         
-        # 1) Who is blocked?
-        if "blocked" in query:
-            brief["summary"] = "3 Teams are currently blocked"
-            brief["scope"] = {"context": "Operational Blocks", "timeframe": "Current", "issue_count": 3}
-            brief["executive_insight"] = {"health_score": 88, "trend": "decaying", "risks": 1}
-            brief["blockers"] = [
-                {"subject": "Payments", "status": "critical", "waiting_on": "Identity API", "time_blocked": "2 days", "impact": "Release delayed"},
-                {"subject": "Sales", "status": "warning", "waiting_on": "Pricing Conf.", "time_blocked": "1 day", "impact": "Deal stalled"},
-                {"subject": "Support", "status": "warning", "waiting_on": "SLA Update", "time_blocked": "4 days", "impact": "Inconsistent info"}
-            ]
-            brief["business_impact"] = [{"area": "Revenue", "severity": "high", "detail": "Sales blocked on pricing"}]
-            brief["recommended_actions"] = [
-                {"action": "Notify Identity Team", "reasoning": "Unblock Payments release"},
-                {"action": "Notify Sales", "reasoning": "Confirm pricing model"}
-            ]
-            brief["agent_activity"] = [
-                {"agent": "Router", "action": "Identified 3 blocked teams"}, 
-                {"agent": "Critic", "action": "Calculated $50k revenue risk"}
-            ]
-            brief["answer"] = """I found 3 teams currently blocked:
+        user_prompt = (
+            f"QUERY: {query}\n"
+            f"ORG HEALTH: {health_score}% ({trend})\n"
+            f"RISKS ({len(insights['risks'])}): {insights['risks']}\n"
+            f"BLOCKERS ({len(insights['blockers'])}): {insights['blockers']}\n"
+            f"RECENT CHANGES: {insights['changes']}\n\n"
+            "Generate a summary response."
+        )
 
-1. **Payments Team** (CRITICAL) - Blocked for 2 days waiting on the Identity API integration. This is delaying their release and has high revenue impact.
+        try:
+            generated_answer = self.openai_text(system=system_prompt, user=user_prompt)
+            brief["answer"] = generated_answer
+        except Exception as e:
+            logger.error(f"LLM Synthesis failed: {e}")
+            brief["answer"] = "Unable to synthesize detailed answer. Please check raw insights."
 
-2. **Sales Team** (WARNING) - Blocked for 1 day waiting on pricing confirmation. A deal is currently stalled because of this.
-
-3. **Support Team** (WARNING) - Blocked for 4 days waiting on the SLA update. This is causing inconsistent information being shared with customers.
-
-The most urgent action is to notify the Identity Team to unblock the Payments release. I also recommend confirming the pricing model with Sales immediately."""
-            
-            # Graph: Red/Critical for blocked
-            visual_nodes = [
-                {"id": "Payments", "label": "Payments Team", "type": "team", "ui_status": "critical"},
-                {"id": "Identity API", "label": "Identity API", "type": "dependency", "ui_status": "critical"},
-                {"id": "Sales", "label": "Sales", "type": "team", "ui_status": "warning"},
-                {"id": "Pricing", "label": "Pricing v2", "type": "decision", "ui_status": "normal"},
-                {"id": "Support", "label": "Support", "type": "team", "ui_status": "warning"},
-                {"id": "SLA", "label": "SLA Doc", "type": "topic", "ui_status": "normal"},
-            ]
-
-        # 2) What changed today?
-        elif "changed" in query:
-            brief["summary"] = "Today's Changes"
-            brief["scope"] = {"context": "Updates", "timeframe": "Last 24h", "issue_count": 0}
-            brief["executive_insight"] = {"health_score": 94, "trend": "improving", "risks": 0}
-            brief["changes"] = [
-                "Pricing updated (v2)", "Refund SLA modified", "Q2 budget approved"
-            ]
-            brief["business_impact"] = [{"area": "Operations", "severity": "medium", "detail": "Impacted: Sales, Finance, Support"}]
-            brief["recommended_actions"] = [{"action": "Review v2 Pricing", "reasoning": "Ensure alignment"}]
-            brief["answer"] = """Three significant changes occurred in the last 24 hours:
-
-1. **Pricing Model Updated to v2** - The Product team finalized the new pricing structure. This affects Sales, Finance, and Customer Success teams. You should review this to ensure all stakeholders are aligned.
-
-2. **Refund SLA Modified** - Engineering updated the refund service level agreement from 48h to 24h. This impacts Support and Finance operations.
-
-3. **Q2 Budget Approved** - Finance received approval for the Q2 budget, which unlocks hiring and project funding across departments.
-
-Overall organizational health is at 94% and improving. I recommend scheduling a brief alignment meeting to ensure Sales and Support are fully briefed on the pricing and SLA changes."""
-            
-            visual_nodes = [
-                {"id": "Pricing", "label": "Pricing v2", "type": "decision", "ui_status": "updated"}, # Blue
-                {"id": "SLA", "label": "Refund SLA", "type": "decision", "ui_status": "updated"},
-                {"id": "Budget", "label": "Q2 Budget", "type": "decision", "ui_status": "updated"},
-                {"id": "Sales", "label": "Sales", "type": "team", "ui_status": "normal"},
-                {"id": "Finance", "label": "Finance", "type": "team", "ui_status": "normal"},
-            ]
-
-        # 3) Biggest risks?
-        elif "risk" in query:
-            brief["summary"] = "Top Risks Detected"
-            brief["scope"] = {"context": "Risk Assessment", "timeframe": "Real-time", "issue_count": 3}
-            brief["executive_insight"] = {"health_score": 82, "trend": "decaying", "risks": 3}
-            brief["risks"] = [
-                "Sales not notified of pricing", "Support using outdated docs", "Payments release delay"
-            ]
-            brief["recommended_actions"] = [{"action": "Broadcast Pricing", "reasoning": "Mitigate revenue risk"}]
-            brief["answer"] = """I've identified 3 critical risks that need immediate attention:
-
-1. **Sales Team Not Informed of Pricing Changes** (HIGH RISK) - The Sales team hasn't been notified about the v2 pricing update. This creates significant revenue risk as they may be quoting outdated prices to prospects. Estimated impact: $50k+ in potential deal confusion.
-
-2. **Support Using Outdated Documentation** (MEDIUM RISK) - The Support team is still referencing old refund guidelines (14 days outdated). This leads to inconsistent customer communication and potential customer satisfaction issues.
-
-3. **Payments Release Delayed** (MEDIUM RISK) - The Payments team has been blocked for 2 days waiting on Identity API integration, putting the Q1 release timeline at risk.
-
-Your organizational health score is at 82% and declining. The most critical action right now is to broadcast the pricing changes to Sales and Customer Success teams to prevent revenue impact. I recommend doing this within the next 2 hours."""
-            
-            visual_nodes = [
-                {"id": "Sales", "label": "Sales", "type": "team", "ui_status": "critical"}, # Red
-                {"id": "Support", "label": "Support", "type": "team", "ui_status": "warning"},
-                {"id": "Payments", "label": "Payments", "type": "team", "ui_status": "warning"},
-                {"id": "Docs", "label": "Documentation", "type": "topic", "ui_status": "warning"},
-            ]
-
-        # 4) Who needs to know about pricing?
-        elif "pricing" in query:
-            brief["summary"] = "Pricing Stakeholders"
-            brief["scope"] = {"context": "Impact Analysis", "timeframe": "Immediate", "issue_count": 2}
-            brief["executive_insight"] = {"health_score": 90, "trend": "stable", "risks": 2}
-            brief["risks"] = ["Sales (Not Informed)", "Customer Success (Not Informed)"]
-            brief["recommended_actions"] = [{"action": "Notify Sales & CS", "reasoning": "Close communication loop"}]
-            brief["answer"] = """Based on the recent pricing v2 update, these teams need to be informed immediately:
-
-**Not Yet Informed (URGENT):**
-- Sales Team - They're actively quoting prices and must know about the changes
-- Customer Success Team - They handle customer inquiries and renewals
-
-**Already Informed:**
-- Product Team - They initiated the pricing change
-
-The communication gap poses a moderate revenue risk. I recommend sending a broadcast message to Sales and Customer Success within the next hour with the new pricing structure and key talking points."""
-            
-            visual_nodes = [
-                {"id": "Pricing", "label": "Pricing v2", "type": "decision", "ui_status": "updated"},
-                {"id": "Sales", "label": "Sales", "type": "team", "ui_status": "warning"}, # Yellow (Not informed)
-                {"id": "CS", "label": "Customer Success", "type": "team", "ui_status": "warning"},
-                {"id": "Product", "label": "Product", "type": "team", "ui_status": "healthy"}, # Green (Informed)
-            ]
-
-        # 5) Where is communication breaking down?
-        elif "communication" in query or "breaking" in query:
-            brief["summary"] = "Communication Breakdowns"
-            brief["scope"] = {"context": "Network Health", "timeframe": "Last 7 days", "issue_count": 2}
-            brief["executive_insight"] = {"health_score": 78, "trend": "decaying", "risks": 2}
-            brief["root_causes"] = [
-                {"type": "Gap", "description": "Product → Sales (Decision not propagated)"},
-                {"type": "Gap", "description": "Engineering → Support (SLA change missing)"}
-            ]
-            brief["recommended_actions"] = [{"action": "Schedule Sync", "reasoning": "Bridge Prod-Sales gap"}]
-            brief["answer"] = """I've detected 2 communication breakdowns in the last 7 days:
-
-1. **Product → Sales Gap** - Product made pricing decisions but didn't propagate them to Sales. This is causing Sales to work with outdated information during customer conversations.
-
-2. **Engineering → Support Gap** - Engineering updated the refund SLA but didn't inform Support. Support is still telling customers the old 48-hour timeline when it's actually 24 hours now.
-
-Your organizational health is at 78% (declining trend). These gaps are creating operational friction and customer confusion. I recommend:
-- Schedule an immediate sync between Product and Sales to align on pricing
-- Create a standard notification process when SLAs or customer-facing policies change"""
-            
-            visual_nodes = [
-                {"id": "Product", "label": "Product", "type": "team", "ui_status": "warning"},
-                {"id": "Sales", "label": "Sales", "type": "team", "ui_status": "warning"},
-                {"id": "Eng", "label": "Engineering", "type": "team", "ui_status": "warning"},
-                {"id": "Support", "label": "Support", "type": "team", "ui_status": "warning"},
-            ]
-
-        # 6) Teams overloaded?
-        elif "overloaded" in query or "load" in query:
-            brief["summary"] = "Communication Overload"
-            brief["scope"] = {"context": "Team Health", "timeframe": "Avg/Day", "issue_count": 1}
-            brief["executive_insight"] = {"health_score": 85, "trend": "stable", "risks": 1}
-            brief["risks"] = ["Decision bottlenecks at Product Lead"]
-            brief["changes"] = [
-                "Product Lead: 42 interactions/day",
-                "Eng Manager: 35/day"
-            ]
-            visual_nodes = [
-                {"id": "ProdLead", "label": "Product Lead", "type": "person", "ui_status": "critical"}, # Red/Large
-                {"id": "EngMgr", "label": "Eng Manager", "type": "person", "ui_status": "warning"},
-                {"id": "Designer", "label": "Lead Designer", "type": "person", "ui_status": "healthy"},
-            ]
-
-        # 7) High impact decisions?
-        elif "decisions" in query:
-            brief["summary"] = "High Impact Decisions"
-            brief["scope"] = {"context": "Strategy", "timeframe": "Q1", "issue_count": 0}
-            brief["changes"] = ["Pricing v2 (Affects 4 teams)", "Refund SLA (Affects 3 teams)"]
-            visual_nodes = [
-                {"id": "Pricing", "label": "Pricing v2", "type": "decision", "ui_status": "updated"}, # Blue
-                {"id": "SLA", "label": "Refund SLA", "type": "decision", "ui_status": "updated"},
-                {"id": "Hiring", "label": "Hiring Plan", "type": "decision", "ui_status": "normal"},
-            ]
-
-        # 8) Conflicting information?
-        elif "conflicting" in query or "conflict" in query:
-            brief["summary"] = "Conflict Detected: Refund SLA"
-            brief["scope"] = {"context": "Data Integrity", "timeframe": "Current", "issue_count": 1}
-            brief["executive_insight"] = {"health_score": 80, "trend": "stable", "risks": 1}
-            brief["root_causes"] = [
-                {"type": "Mismatch", "description": "Eng says 24h, Support says 48h"}
-            ]
-            brief["recommended_actions"] = [{"action": "Standardize SLA", "reasoning": "Resolve mismatch"}]
-            visual_nodes = [
-                {"id": "SLA", "label": "Refund SLA", "type": "decision", "ui_status": "conflict"}, # Orange
-                {"id": "Eng", "label": "Engineering", "type": "team", "ui_status": "normal"},
-                {"id": "Support", "label": "Support", "type": "team", "ui_status": "normal"},
-            ]
-
-        # 9) Outdated knowledge?
-        elif "outdated" in query or "knowledge" in query:
-            brief["summary"] = "Outdated Knowledge Assets"
-            brief["scope"] = {"context": "Knowledge Base", "timeframe": "> 14 days", "issue_count": 2}
-            brief["risks"] = ["Support refund guide (14 days old)", "Pricing FAQ (Active but old)"]
-            brief["recommended_actions"] = [{"action": "Archive Old Docs", "reasoning": "Prevent confusion"}]
-            visual_nodes = [
-                {"id": "Guide", "label": "Refund Guide", "type": "topic", "ui_status": "warning"}, # Yellow/Gray
-                {"id": "FAQ", "label": "Pricing FAQ", "type": "topic", "ui_status": "warning"},
-                {"id": "Wiki", "label": "Team Wiki", "type": "topic", "ui_status": "healthy"},
-            ]
-
-        # 10) Leadership focus?
-        elif "leadership" in query or "focus" in query:
-            brief["summary"] = "Leadership Priority: Org Health 82%"
-            brief["scope"] = {"context": "Executive Summary", "timeframe": "Today", "issue_count": 3}
-            brief["executive_insight"] = {"health_score": 82, "trend": "decaying", "risks": 3}
-            brief["blockers"] = [{"subject": "Payments", "status": "critical", "waiting_on": "Identity", "time_blocked": "2d", "impact": "Release"}]
-            brief["risks"] = ["Sales unaware of Pricing", "Support using outdated SLA"]
-            brief["recommended_actions"] = [{"action": "Approve Identity Contract", "reasoning": "Unblock Payments"}]
-            visual_nodes = [
-                {"id": "Payments", "label": "Payments", "type": "team", "ui_status": "critical"},
-                {"id": "Sales", "label": "Sales", "type": "team", "ui_status": "critical"},
-                {"id": "Support", "label": "Support", "type": "team", "ui_status": "warning"},
-                {"id": "SLA", "label": "SLA Mismatch", "type": "decision", "ui_status": "conflict"},
-            ]
-
-        else:
-             # Default Fallback
-            brief["summary"] = "Organization Overview"
-            brief["changes"] = ["Refactored Intelligence Agent", "Updated Interaction Model"]
-            brief["answer"] = """I'm your organizational intelligence partner. Here's what I can help you with:
-
-**Quick Insights:**
-- Who is blocked? - Shows teams waiting on decisions or dependencies
-- What changed today? - Recent organizational updates and decisions
-- What are the biggest risks? - Current risks affecting your organization
-
-**Deep Analysis:**
-- Communication breakdown analysis
-- Decision impact assessment
-- Team overload detection
-- Knowledge freshness checks
-
-Try asking me one of the questions above, or ask about specific teams, decisions, or risks in your organization."""
-        
-        # Build Edges for Visuals (Simple Star Topology for Demo)
+        # Build Edges (Star topology for visualization context)
         visual_edges = []
         if visual_nodes:
-            center_id = visual_nodes[0]['id']
+            center = visual_nodes[0]
             for i in range(1, len(visual_nodes)):
                 visual_edges.append({
-                    "source": center_id, 
-                    "target": visual_nodes[i]['id'], 
-                    "relation_type": "related_to"
+                    "source": center["id"],
+                    "target": visual_nodes[i]["id"],
+                    "relation_type": "related"
                 })
 
         return {
@@ -284,5 +106,49 @@ Try asking me one of the questions above, or ask about specific teams, decisions
                 "nodes": visual_nodes,
                 "edges": visual_edges
             },
-            "answer": brief.get("answer", brief["summary"])
+            "answer": brief["answer"]
+        }
+
+    def _analyze_graph(self) -> Dict[str, List[Any]]:
+        """
+        Scan the knowledge graph for risks, blockers, and changes.
+        """
+        if not self.memory or not self.memory._graph:
+            return {"risks": [], "blockers": [], "changes": []}
+
+        g = self.memory._graph.get_graph()
+        
+        risks = []
+        blockers = []
+        changes = []
+        
+        # Simple heuristic keywords
+        risk_keywords = ["conflict", "risk", "urgent", "delay", "fail", "miss", "alert"]
+        blocker_keywords = ["block", "stuck", "wait", "hold"]
+        
+        # Sort nodes by some 'date' if available, otherwise just arbitrary
+        # In a real system, we'd query by timestamp. Here we iterate all.
+        
+        for nid, attrs in g.nodes(data=True):
+            label = str(attrs.get("label", "")).lower()
+            content = str(attrs.get("content", "")).lower()
+            node_type = attrs.get("type", "unknown")
+            
+            # Check for Risks
+            if any(k in label or k in content for k in risk_keywords):
+                risks.append({"id": nid, "label": attrs.get("label", nid), "type": node_type, "detail": label})
+            
+            # Check for Blockers
+            if any(k in label or k in content for k in blocker_keywords):
+                blockers.append({"id": nid, "label": attrs.get("label", nid), "type": node_type, "detail": label})
+                
+            # Assume everything is a "recent change" for this simulation if it has a date
+            if attrs.get("date"):
+                changes.append(attrs.get("label", nid))
+                
+        # Deduplicate
+        return {
+            "risks": risks,
+            "blockers": blockers,
+            "changes": changes[-5:] # Last 5
         }
