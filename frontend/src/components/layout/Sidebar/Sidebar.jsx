@@ -16,6 +16,7 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
   // TTS State
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
+  const utteranceRef = useRef(null);
 
   // Sync voice transcript to input
   useEffect(() => {
@@ -27,7 +28,16 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
   // TTS Helper
   const toggleTTS = async (text) => {
     if (isPlaying) {
+      // Stop HTMLAudioElement (ElevenLabs path)
       audioRef.current?.pause();
+      audioRef.current = null;
+
+      // Stop Web Speech API (fallback path)
+      if (utteranceRef.current) {
+        window.speechSynthesis?.cancel?.();
+        utteranceRef.current = null;
+      }
+
       setIsPlaying(false);
       return;
     }
@@ -36,8 +46,8 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
 
     try {
       setIsPlaying(true);
-      // Use 127.0.0.1 to avoid localhost resolution issues on some systems
-      const response = await fetch('http://127.0.0.1:8000/tts', {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+      const response = await fetch(`${apiBase}/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: text.substring(0, 1000) }) // Limit length for demo
@@ -62,9 +72,31 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
       audioRef.current = audio;
       audio.play();
     } catch (e) {
-      console.error("Audio playback error:", e);
+      // Fallback to the browser Web Speech API so deployed environments still have read-aloud.
+      const canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+      if (canSpeak) {
+        try {
+          const utterance = new window.SpeechSynthesisUtterance(text.substring(0, 2000));
+          utterance.onend = () => {
+            utteranceRef.current = null;
+            setIsPlaying(false);
+          };
+          utterance.onerror = () => {
+            utteranceRef.current = null;
+            setIsPlaying(false);
+          };
+          utteranceRef.current = utterance;
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(utterance);
+          return;
+        } catch (fallbackErr) {
+          console.error("Web Speech fallback failed:", fallbackErr);
+        }
+      }
+
+      console.error("TTS failed:", e);
       setIsPlaying(false);
-      alert(`Voice Error: ${e.message}. Is the backend running?`);
+      alert(`Read-aloud failed: ${e.message}`);
     }
   };
 
@@ -72,6 +104,10 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
   useEffect(() => {
     return () => {
       audioRef.current?.pause();
+      if (utteranceRef.current) {
+        window.speechSynthesis?.cancel?.();
+        utteranceRef.current = null;
+      }
     };
   }, []);
 
