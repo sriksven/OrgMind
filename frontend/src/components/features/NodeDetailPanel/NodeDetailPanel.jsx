@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import './NodeDetailPanel.css'
 
-export default function NodeDetailPanel({ node, onClose, graphData }) {
+export default function NodeDetailPanel({ node, onClose, graphData, onNavigate }) {
   const [activeTab, setActiveTab] = useState('overview')
   
   if (!node) return null
@@ -13,6 +13,13 @@ export default function NodeDetailPanel({ node, onClose, graphData }) {
 
   // Find connections for this node
   const connections = findConnections(nodeId, graphData)
+  
+  // Navigate to a connected node
+  const handleNavigateToConnection = (targetId) => {
+    if (onNavigate) {
+      onNavigate(targetId)
+    }
+  }
   
   // Determine what to show based on node type
   const isPerson = nodeType === 'person'
@@ -78,7 +85,10 @@ export default function NodeDetailPanel({ node, onClose, graphData }) {
           )}
           
           {activeTab === 'connections' && (
-            <ConnectionsTab connections={connections} />
+            <ConnectionsTab 
+              connections={connections} 
+              onNavigate={handleNavigateToConnection}
+            />
           )}
           
           {activeTab === 'knowledge' && isPerson && (
@@ -257,7 +267,7 @@ function OverviewTab({ node, nodeType, connections, isPerson, isDecision, isTopi
 }
 
 // Connections Tab
-function ConnectionsTab({ connections }) {
+function ConnectionsTab({ connections, onNavigate }) {
   return (
     <div className="connections-content">
       <div className="connection-list">
@@ -270,7 +280,13 @@ function ConnectionsTab({ connections }) {
               <div className="connection-label">{conn.targetLabel}</div>
               <div className="connection-relation">{conn.relation}</div>
             </div>
-            <button className="connection-view-btn">→</button>
+            <button 
+              className="connection-view-btn"
+              onClick={() => onNavigate && onNavigate(conn.targetId)}
+              title={`View ${conn.targetLabel}`}
+            >
+              →
+            </button>
           </div>
         ))}
         {connections.length === 0 && (

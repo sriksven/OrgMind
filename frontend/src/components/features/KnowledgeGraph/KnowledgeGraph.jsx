@@ -236,6 +236,16 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
     onSelectNode?.(node)
   }, [onSelectNode])
 
+  // Handler for navigating to a connected node by ID
+  const handleNavigateToNode = useCallback((targetId) => {
+    const targetNode = nodes.find(n => String(n.id) === String(targetId))
+    if (targetNode) {
+      onSelectNode?.(targetNode)
+      // Optional: Center the view on the target node
+      // This requires the reactFlowInstance which we can get from useReactFlow hook
+    }
+  }, [nodes, onSelectNode])
+
   const onNodeEnter = useCallback((_, node) => {
     setHovered(node.id)
   }, [])
@@ -359,6 +369,7 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
           node={selectedNode}
           onClose={() => onSelectNode?.(null)}
           graphData={data}
+          onNavigate={handleNavigateToNode}
         />
       )}
     </div>

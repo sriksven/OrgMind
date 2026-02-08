@@ -432,11 +432,15 @@
   font-size: 1.25rem;
   cursor: pointer;
   transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .connection-view-btn:hover {
   background: var(--primary);
   color: #f7f4ef;
+  transform: translateX(3px);
 }
 
 /* Footer */
