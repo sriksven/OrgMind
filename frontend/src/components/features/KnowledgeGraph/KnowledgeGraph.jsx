@@ -13,12 +13,20 @@ import NodeDetailPanel from '../NodeDetailPanel/NodeDetailPanel'
 import 'reactflow/dist/style.css'
 import '../NodeDetailPanel/NodeDetailPanel.css'
 
-const TYPE_COLOR = {
-  person: '#d8e2ea',
-  decision: '#f2e6d6',
-  topic: '#dfeae3',
-  event: '#e6e1d9',
-  entity: '#e9e4dc',
+const TYPE_STYLE = {
+  person: { base: '#eaf2fb', accent: '#3b82f6' },
+  decision: { base: '#fbefe3', accent: '#f59e0b' },
+  topic: { base: '#eaf7f0', accent: '#10b981' },
+  event: { base: '#f1ecfb', accent: '#8b5cf6' },
+  entity: { base: '#f3efe9', accent: '#64748b' },
+}
+
+function edgeColor(relationType) {
+  const rel = String(relationType || '').toLowerCase()
+  if (rel.includes('block') || rel.includes('risk') || rel.includes('conflict')) return '#ef4444'
+  if (rel.includes('depend') || rel.includes('needs')) return '#f59e0b'
+  if (rel.includes('own') || rel.includes('lead') || rel.includes('made_by')) return '#3b82f6'
+  return '#94a3b8'
 }
 
 // SIMPLE grid layout with generous spacing - NO OVERLAP
@@ -100,29 +108,36 @@ function toFlowNodes(nodes, filter, extraFilter, visualMode = 'default') {
 
   return positioned.map((n, i) => {
     // Visual Reasoning Status Colors with Severity Encoding
-    let bg = TYPE_COLOR[n.type] || TYPE_COLOR.entity
-    let border = '1px solid #cfc7bd'
-    let boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
+    const typeStyle = TYPE_STYLE[n.type] || TYPE_STYLE.entity
+    let bg = `linear-gradient(180deg, rgba(255,255,255,0.96) 0%, ${typeStyle.base} 100%)`
+    let border = '1px solid rgba(15, 23, 42, 0.14)'
+    let borderTop = `4px solid ${typeStyle.accent}`
+    let boxShadow = '0 10px 26px rgba(15, 23, 42, 0.10), 0 2px 10px rgba(15, 23, 42, 0.06)'
 
     // React to UI Status (Visual Reasoning) with enhanced severity
     if (n.ui_status === 'critical') {
-      bg = '#fef2f2' // Red
-      border = '3px solid #ef4444' // Thicker border
+      bg = 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, #fef2f2 100%)' // Red
+      border = '2px solid #ef4444'
+      borderTop = '4px solid #ef4444'
       boxShadow = '0 0 20px rgba(239, 68, 68, 0.4), 0 4px 12px rgba(239, 68, 68, 0.2)' // Red glow
     } else if (n.ui_status === 'conflict') {
-      bg = '#fff7ed' // Orange
-      border = '3px solid #f97316'
+      bg = 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, #fff7ed 100%)' // Orange
+      border = '2px solid #f97316'
+      borderTop = '4px solid #f97316'
       boxShadow = '0 0 16px rgba(249, 115, 22, 0.3), 0 4px 10px rgba(249, 115, 22, 0.15)'
     } else if (n.ui_status === 'warning') {
-      bg = '#fffbeb' // Yellow
+      bg = 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, #fffbeb 100%)' // Yellow
       border = '2px solid #f59e0b'
+      borderTop = '4px solid #f59e0b'
       boxShadow = '0 0 12px rgba(245, 158, 11, 0.25), 0 4px 8px rgba(245, 158, 11, 0.12)'
     } else if (n.ui_status === 'updated') {
-      bg = '#eff6ff' // Blue
+      bg = 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, #eff6ff 100%)' // Blue
       border = '2px solid #3b82f6'
+      borderTop = '4px solid #3b82f6'
     } else if (n.ui_status === 'healthy') {
-      bg = '#f0fdf4' // Green
+      bg = 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, #f0fdf4 100%)' // Green
       border = '2px solid #22c55e'
+      borderTop = '4px solid #22c55e'
     }
 
     return {
@@ -135,6 +150,7 @@ function toFlowNodes(nodes, filter, extraFilter, visualMode = 'default') {
       style: {
         background: bg,
         border: border,
+        borderTop: borderTop,
         color: '#2b2a28',
         borderRadius: '12px',
         padding: '18px 24px', // Increased padding
@@ -167,12 +183,21 @@ function toFlowEdges(edges, nodesIndex) {
     type: 'smoothstep',
     animated: e.relation_type === 'made_by',
     style: {
-      stroke: '#b7aea4',
-      strokeWidth: 3, // Increased from 2 to 3 (+50%)
+      stroke: edgeColor(e.relation_type),
+      strokeWidth: 3,
+      opacity: 0.7,
     },
     labelStyle: {
-      fill: '#7c746c',
+      fill: '#334155',
       fontSize: 11,
+      fontWeight: 600,
+    },
+    labelBgPadding: [6, 10],
+    labelBgBorderRadius: 999,
+    labelBgStyle: {
+      fill: 'rgba(255, 255, 255, 0.85)',
+      stroke: 'rgba(148, 163, 184, 0.35)',
+      strokeWidth: 1,
     },
     data: e,
     hidden: !nodesIndex.has(String(e.source)) || !nodesIndex.has(String(e.target)),
@@ -184,7 +209,7 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
   const [hovered, setHovered] = useState(null)
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
-  const { fitView } = useReactFlow()
+  const { fitView, setCenter } = useReactFlow()
 
   const typeCounts = useMemo(() => {
     const counts = { person: 0, decision: 0, topic: 0 }
@@ -241,10 +266,18 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
     const targetNode = nodes.find(n => String(n.id) === String(targetId))
     if (targetNode) {
       onSelectNode?.(targetNode)
-      // Optional: Center the view on the target node
-      // This requires the reactFlowInstance which we can get from useReactFlow hook
+      // Center the view on the target node with smooth animation
+      if (targetNode.position) {
+        setTimeout(() => {
+          setCenter(
+            targetNode.position.x + (targetNode.width || 200) / 2,
+            targetNode.position.y + (targetNode.height || 80) / 2,
+            { duration: 800, zoom: 1.2 }
+          )
+        }, 100)
+      }
     }
-  }, [nodes, onSelectNode])
+  }, [nodes, onSelectNode, setCenter])
 
   const onNodeEnter = useCallback((_, node) => {
     setHovered(node.id)
@@ -350,10 +383,10 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
             }}
           />
           <Background
-            variant="dots"
-            gap={25}
-            size={1.5}
-            color="#d9d2c8"
+            variant="cross"
+            gap={48}
+            size={1}
+            color="rgba(100, 116, 139, 0.20)"
           />
         </ReactFlow>
       </div>

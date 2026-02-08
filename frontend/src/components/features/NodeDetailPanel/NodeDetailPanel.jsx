@@ -3,7 +3,12 @@ import { useState, useEffect } from 'react'
 import './NodeDetailPanel.css'
 
 export default function NodeDetailPanel({ node, onClose, graphData, onNavigate }) {
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState('connections')
+  
+  // Reset to connections tab when node changes (after navigation)
+  useEffect(() => {
+    setActiveTab('connections')
+  }, [node?.id])
   
   if (!node) return null
 
