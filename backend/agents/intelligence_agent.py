@@ -100,6 +100,13 @@ class IntelligenceAgent(BaseAgent):
                     "relation_type": "related"
                 })
 
+        # 5. Log Reasoning for Frontend
+        self.log_reasoning(
+            step="Situation Analysis Complete",
+            details=brief,
+            confidence=1.0
+        )
+
         return {
             "brief": brief,
             "visual_reasoning": {

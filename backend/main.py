@@ -283,3 +283,48 @@ async def stats():
         "demo": {**s["demo"], "avg_time": avg("demo")},
         "graph_history": app.state.graph_history[-50:],
     }
+
+
+class VoiceRequest(BaseModel):
+    text: str
+    voice_id: str = "JBFqnCBsd6RMkjVDRZzb"  # Default to 'George' (British, Professional)
+
+
+@app.post("/tts")
+async def text_to_speech(req: VoiceRequest):
+    """Proxy TTS request to ElevenLabs to protect API Key."""
+    import httpx
+    
+    api_key = os.getenv("ELEVENLABS_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="ElevenLabs API Key not configured")
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{req.voice_id}/stream"
+    headers = {
+        "Accept": "audio/mpeg",
+        "Content-Type": "application/json",
+        "xi-api-key": api_key
+    }
+    data = {
+        "text": req.text,
+        "model_id": "eleven_monolingual_v1",
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.5
+        }
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, json=data, headers=headers, timeout=60.0) # Increased timeout for audio generation
+            if resp.status_code != 200:
+                logger.error(f"ElevenLabs Error: {resp.text}")
+                raise HTTPException(status_code=resp.status_code, detail=f"ElevenLabs Provider Error: {resp.text}")
+            
+            # Return raw audio bytes
+            from fastapi.responses import Response
+            return Response(content=resp.content, media_type="audio/mpeg")
+            
+    except Exception as e:
+        logger.error(f"TTS Failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

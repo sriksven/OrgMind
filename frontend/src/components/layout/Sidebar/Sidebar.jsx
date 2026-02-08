@@ -1,26 +1,81 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import IntelligencePanel from '../../features/IntelligencePanel/IntelligencePanel'
 import KnowledgeGraph from '../../features/KnowledgeGraph/KnowledgeGraph'
 import './Sidebar.css'
+import useVoiceInput from '../../../hooks/useVoiceInput' // Import custom hook
 
 export default function Sidebar({ onQuery, processing, queryResult, onClearQuery }) {
   const [question, setQuestion] = useState('')
   const [visualMode, setVisualMode] = useState('default')
   const [expandedGraph, setExpandedGraph] = useState(false)
 
-  // Auto-switch visual mode when new intelligence result arrives
+  // Voice Input Hooks
+  const { isListening, transcript, startListening, stopListening, error: voiceError } = useVoiceInput();
+
+  // TTS State
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
+
+  // Sync voice transcript to input
+  useEffect(() => {
+    if (transcript) {
+      setQuestion(prev => (prev ? prev + ' ' + transcript : transcript));
+    }
+  }, [transcript]);
+
+  // TTS Helper
+  const toggleTTS = async (text) => {
+    if (isPlaying) {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    if (!text) return;
+
+    try {
+      setIsPlaying(true);
+      const response = await fetch('http://localhost:8000/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.substring(0, 1000) }) // Limit length for demo
+      });
+
+      if (!response.ok) throw new Error("TTS failed");
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+
+      audio.onended = () => setIsPlaying(false);
+      audio.onerror = () => setIsPlaying(false);
+
+      audioRef.current = audio;
+      audio.play();
+    } catch (e) {
+      console.error("Audio playback error:", e);
+      setIsPlaying(false);
+    }
+  };
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+    };
+  }, []);
+
+  // Auto-switch visual mode logic... [Same as before]
   useEffect(() => {
     if (queryResult?.brief) {
       const brief = queryResult.brief;
-      // Check if risks exist (could be array of strings or simple count check)
       const hasRisks = Array.isArray(brief.risks) && brief.risks.length > 0;
       const riskCount = brief.executive_insight?.risks > 0;
 
       if (hasRisks || riskCount) {
         setVisualMode('impact')
       } else {
-        // Handle scope being object OR string (for backward compatibility)
         const scopeTimeframe = typeof brief.scope === 'string' ? brief.scope : brief.scope?.timeframe;
         if (scopeTimeframe?.includes('24h') || scopeTimeframe?.includes('week') || scopeTimeframe?.includes('Today')) {
           setVisualMode('timeline')
@@ -42,49 +97,39 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
     }
   }
 
-  // Check if we have a valid intelligence result
   const hasResult = !!queryResult?.brief
   const visualData = queryResult?.visual_reasoning
   const answer = queryResult?.answer || queryResult?.result
 
   const handleClearAnswer = () => {
-    // Clear the question and the entire query result
     setQuestion('')
-    // Call the parent callback to clear the entire intelligence view
-    if (onClearQuery) {
-      onClearQuery()
+    if (onClearQuery) onClearQuery()
+    // Stop audio if clearing
+    if (isPlaying) {
+      audioRef.current?.pause();
+      setIsPlaying(false);
     }
   }
 
   const [showFullAnswer, setShowFullAnswer] = useState(false);
-  
-  // Reset showFullAnswer when queryResult changes
+
   useEffect(() => {
     setShowFullAnswer(false);
   }, [queryResult]);
-  
-  // Convert markdown-style text to HTML
+
   const renderMarkdown = (text) => {
     if (!text) return text;
-    
-    // Convert **bold** to <strong>
     let formatted = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    
-    // Convert numbered lists
     formatted = formatted.replace(/^\d+\.\s+/gm, '');
-    
     return formatted;
   };
 
-  // Create condensed summary from answer
   const getCondensedSummary = (answer) => {
     if (!answer) return null;
-    
-    // Extract key metrics from the answer
     const teamsMatch = answer.match(/(\d+)\s+team/i);
     const risksMatch = answer.match(/(\d+)\s+(critical\s+)?risk/i);
     const blockedMatch = answer.match(/blocked for (\d+\s+\w+)/i);
-    
+
     return {
       teams: teamsMatch ? teamsMatch[1] : null,
       risks: risksMatch ? risksMatch[1] : null,
@@ -92,7 +137,7 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
       firstLine: answer.split('\n')[0] || answer.substring(0, 100)
     };
   };
-  
+
   const summary = answer ? getCondensedSummary(answer) : null;
 
   return (
@@ -109,10 +154,21 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={handleKeyDown}
-          disabled={processing}
+          disabled={processing || isListening}
           rows={3}
         />
+
+        {/* Input Actions Row */}
         <div className="ask-actions">
+          {/* Mic Button */}
+          <button
+            className={`mic-btn ${isListening ? 'listening' : ''}`}
+            onClick={isListening ? stopListening : startListening}
+            title="Voice Input"
+          >
+            {isListening ? '🔴 Listening...' : '🎤'}
+          </button>
+
           <button
             className="ask-submit-btn"
             onClick={handleAsk}
@@ -142,7 +198,7 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
             ))}
           </div>
 
-          {/* Answer Box placed below questions */}
+          {/* Answer Box */}
           {(hasResult || processing) && (
             <div className="sidebar-answer-box">
               <div className="answer-header">
@@ -156,6 +212,19 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
                   </button>
                 )}
               </div>
+
+              {/* Audio Control Bar (Only if result exists) */}
+              {hasResult && answer && (
+                <div className="audio-control-bar">
+                  <button
+                    className={`audio-play-btn ${isPlaying ? 'playing' : ''}`}
+                    onClick={() => toggleTTS(renderMarkdown(answer).replace(/<[^>]*>/g, ''))} // Strip HTML for TTS
+                  >
+                    {isPlaying ? '⏹ Stop Audio' : '▶️ Read Aloud'}
+                  </button>
+                </div>
+              )}
+
               <div className="answer-content">
                 {processing ? (
                   <span className="typing-indicator">Analyzing...</span>
@@ -185,7 +254,7 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
                     )}
                     {showFullAnswer && (
                       <>
-                        <div 
+                        <div
                           className="answer-text-full"
                           dangerouslySetInnerHTML={{ __html: renderMarkdown(answer) }}
                         />
@@ -206,11 +275,7 @@ export default function Sidebar({ onQuery, processing, queryResult, onClearQuery
         </div>
       </div>
 
-      {/* Result Area - Only shows when result exists */}
-      {/* Result Area - Sidebar is now just for input/prompts. 
-          Results are shown in the Center (Brief) and Right (Graph) panels. */}
-      {/* Fallback for simple answers if needed, otherwise empty */}
-      {/* <div className="sidebar-results">...</div> */}
+      <div className="sidebar-results"></div>
     </aside>
   )
 }
