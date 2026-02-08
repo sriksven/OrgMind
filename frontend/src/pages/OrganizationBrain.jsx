@@ -14,7 +14,8 @@ export default function OrganizationBrain({
   selectedNode,
   onSelectNode,
   visualReasoning, // New prop
-  onClearIntelligence // Callback to clear search
+  onClearIntelligence, // Callback to clear search
+  onClearAll // Callback to clear everything
 }) {
   const [showConflicts, setShowConflicts] = useState(false)
   const [showOutdated, setShowOutdated] = useState(false)
@@ -125,6 +126,7 @@ export default function OrganizationBrain({
           onSelectNode={onSelectNode}
           loading={loading}
           extraFilter={extraFilter}
+          onClearAll={onClearAll}
         />
       </section>
     </div>

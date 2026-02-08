@@ -230,7 +230,7 @@ function toFlowEdges(edges, nodesIndex) {
   }))
 }
 
-function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter, visualMode = 'default' }) {
+function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter, visualMode = 'default', onClearAll }) {
   const [filter, setFilter] = useState('all')
   const [hovered, setHovered] = useState(null)
   const [nodes, setNodes, onNodesChange] = useNodesState([])
@@ -457,7 +457,10 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
       {selectedNode && (
         <NodeDetailPanel
           node={selectedNode}
-          onClose={() => onSelectNode?.(null)}
+          onClose={() => {
+            onSelectNode?.(null)
+            onClearAll?.()
+          }}
           graphData={data}
           onNavigate={handleNavigateToNode}
         />

@@ -256,6 +256,10 @@ function App() {
                 onSelectNode={setSelectedNode}
                 visualReasoning={queryResult?.visual_reasoning} // Pass intelligence graph
                 onClearIntelligence={() => setQueryResult(null)} // Allow clearing
+                onClearAll={() => {
+                  setSelectedNode(null)
+                  setQueryResult(null)
+                }}
               />
             </Suspense>
           </ErrorBoundary>
