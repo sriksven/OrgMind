@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, memo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react'
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -236,6 +236,8 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
   const { fitView, setCenter } = useReactFlow()
+  const didInitialOverviewFit = useRef(false)
+  const INITIAL_OVERVIEW_ZOOM = 0.6
 
   const typeCounts = useMemo(() => {
     const counts = { person: 0, decision: 0, topic: 0 }
@@ -268,15 +270,20 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
     console.log(`Setting ${nf.length} nodes and ${ef.length} edges`)
     setNodes(nf)
     setEdges(ef)
-  }, [data.nodes, data.edges, filter, extraFilter, visualMode, setNodes, setEdges, fitView])
+  }, [data.nodes, data.edges, filter, extraFilter, visualMode, setNodes, setEdges])
 
   useEffect(() => {
-    if (!nodes.length) return
-    const t = setTimeout(() => {
-      fitView({ padding: 0.2, duration: 200 })
-    }, 50)
-    return () => clearTimeout(t)
-  }, [nodes.length, fitView, filter])
+    if (!nodes.length || didInitialOverviewFit.current) return
+    didInitialOverviewFit.current = true
+    requestAnimationFrame(() => {
+      fitView({
+        padding: 0.2,
+        duration: 0,
+        minZoom: INITIAL_OVERVIEW_ZOOM,
+        maxZoom: INITIAL_OVERVIEW_ZOOM,
+      })
+    })
+  }, [nodes.length, fitView, INITIAL_OVERVIEW_ZOOM])
 
   // Auto-center on selected node when it changes
   useEffect(() => {
@@ -288,7 +295,7 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
         setCenter(
           targetNode.position.x + (targetNode.width || 240) / 2,
           targetNode.position.y + (targetNode.height || 100) / 2,
-          { duration: 800, zoom: 1.5 }
+          { duration: 800 }
         )
       }, 200)
     }
@@ -314,7 +321,7 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
           setCenter(
             targetNode.position.x + (targetNode.width || 200) / 2,
             targetNode.position.y + (targetNode.height || 80) / 2,
-            { duration: 800, zoom: 1.2 }
+            { duration: 800 }
           )
         }, 100)
       }
@@ -410,7 +417,6 @@ function KnowledgeGraph({ data, onSelectNode, selectedNode, loading, extraFilter
           onNodeClick={onNodeClick}
           onNodeMouseEnter={onNodeEnter}
           onNodeMouseLeave={onNodeLeave}
-          fitView
           minZoom={0.1}
           maxZoom={2}
         >
