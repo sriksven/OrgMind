@@ -1,0 +1,26 @@
+name: Hackathon Simulation
+
+on:
+  schedule:
+    # Run at minute 0 of every hour
+    - cron: '0 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  simulate_traffic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: pip install httpx
+
+      - name: Run Simulation
+        env:
+          API_URL: https://orgmind.onrender.com/process
+        run: python backend/scripts/simulate_traffic.py

@@ -1,0 +1,262 @@
+[
+    {
+        "batch_id": 0,
+        "emails": [
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "🚀 KICKOFF-4# Hack-Nation Global AI Hackathon",
+                "content": "Get ready for the kickoff! We start at 11:00 AM ET sharp on Zoom.\n\nDedicated Zoom Link, do not use the Zoom desktop notification (it might be wrong): https://mit.zoom.us/j/99162894059\n\nDon't miss out on a total of ~$160K OpenAI, Cursor, ElevenLabs or Lovable credits provided to hackers that are ready to build.",
+                "date": "Sat, Feb 7, 10:00 AM"
+            },
+            {
+                "type": "email",
+                "sender": "Hackathon Support <support@hacknation.ai>",
+                "subject": "Urgent: Discord Access & Team Formation",
+                "content": "If you haven't joined the Discord yet, do it now: https://discord.gg/vPmTYGXEHN\n\nAll team coordination happens there. If you are still looking for a team, head to the #find-a-team channel. Remember: Max 4 members per team.",
+                "date": "Sat, Feb 7, 10:05 AM"
+            },
+            {
+                "type": "email",
+                "sender": "Dev Rel Team <dev@hacknation.ai>",
+                "subject": "API Keys for OpenAI & ElevenLabs Released",
+                "content": "We have released the $160K in API credits!\n\nLogin to the platform to claim your team's unique keys for OpenAI (GPT-4) and ElevenLabs. Note: These keys are rate-limited and valid only for the duration of the hackathon.",
+                "date": "Sat, Feb 7, 10:10 AM"
+            }
+        ]
+    },
+    {
+        "batch_id": 1,
+        "emails": [
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "Challenge Reveal: The 'Health-Tech' Track",
+                "content": "The special challenge for the Health-Tech track is live.\n\nChallenge: Build an AI agent that can parse unstructured medical PDFs into structured JSON.\n\nValid datasets are pinned in the #health-track Discord channel. Good luck!",
+                "date": "Sat, Feb 7, 11:45 AM"
+            },
+            {
+                "type": "email",
+                "sender": "Linn _ <noreply@luma-mail.com>",
+                "subject": "10 more minutes to request OpenAI credits - deadline extension",
+                "content": "Deadline extension: OpenAI credit requests will remain open for another 10 min.\n\n1. Get your Org-ID from OpenAI's website (not chatGPT): https://platform.openai.com/settings/organization/general\n2. Request the credits: https://projects.hack-nation.ai/#/api-credits",
+                "date": "Sat, Feb 7, 12:00 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Lee Robinson <lee@vercel.com>",
+                "subject": "Mentor Office Hours: Cursor & Lovable",
+                "content": "I'll be hosting an office hour session in the Zoom breakout room 'Mentors-1' starting at 2:00 PM ET.\n\nCome ask questions about Vercel deployment, Cursor workflows, or frontend styling with Lovable.",
+                "date": "Sat, Feb 7, 12:30 PM"
+            }
+        ]
+    },
+    {
+        "batch_id": 2,
+        "emails": [
+            {
+                "type": "email",
+                "sender": "Platform Team <platform@hacknation.ai>",
+                "subject": "Submission Portal is now OPEN",
+                "content": "You can now start drafting your submission on Devpost.\n\nRequirement: You must include a 2-minute demo video link (YouTube or Loom).\nDeadline: Sunday 9:00 AM ET (Hard stop).",
+                "date": "Sat, Feb 7, 2:00 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "CONFLICT: Mentor Session Moved",
+                "content": "Correction: The Mentor session with Lee Robinson is actually at 3:00 PM ET, not 2:00 PM. Please adjust your schedules.",
+                "date": "Sat, Feb 7, 2:10 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Admin <admin@hacknation.ai>",
+                "subject": "WiFi Issues at SF Hub",
+                "content": "We are aware of the WiFi outage at the San Francisco hub. We are working on it. Mobile hotspots are available at the front desk.",
+                "date": "Sat, Feb 7, 2:15 PM"
+            }
+        ]
+    },
+    {
+        "batch_id": 3,
+        "emails": [
+            {
+                "type": "email",
+                "sender": "Sponsor - convex.dev <team@convex.dev>",
+                "subject": "Win a pure gold keyboard!",
+                "content": "Best use of Convex gets a custom gold-plated mechanical keyboard. API docs attached.",
+                "date": "Sat, Feb 7, 4:00 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "Pizza Arriving (In-Person Hubs)",
+                "content": "Pizza has arrived at London and Boston hubs! Take a break and grab a slice.",
+                "date": "Sat, Feb 7, 6:00 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Team Formation Bot <bot@hacknation.ai>",
+                "subject": "Team Registration Deadline Warning",
+                "content": "You have 1 hour left to finalize your team members on the platform. No changes allowed after 7 PM ET.",
+                "date": "Sat, Feb 7, 6:00 PM"
+            }
+        ]
+    },
+    {
+        "batch_id": 4,
+        "emails": [
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "Mid-Hack Checkpoint",
+                "content": "We are halfway through! How is everyone feeling? Remember to drink water.\n\nMentors are going offline for the night in 1 hour.",
+                "date": "Sat, Feb 7, 10:00 PM"
+            },
+            {
+                "type": "email",
+                "sender": "PagerDuty <alerts@hacknation.ai>",
+                "subject": "API Rate Limits Increased",
+                "content": "We noticed many teams hitting the OpenAI rate limits. We have doubled the quota for all teams. Happy hacking!",
+                "date": "Sat, Feb 7, 10:30 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Unknown <hacker@anonymous.com>",
+                "subject": "Looking for frontend help",
+                "content": "Our React dev dropped out. Anyone free to join team 'CodeCrush'? We have a working backend.",
+                "date": "Sat, Feb 7, 11:00 PM"
+            }
+        ]
+    },
+    {
+        "batch_id": 5,
+        "emails": [
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "REMINDER: 4 Hours to Submission Deadline",
+                "content": "Teams, you have exactly 4 hours left.\n\nEnsure your code is pushed to GitHub and your repository is public. If you are using a private repo, invite 'hacknation-judge' as a collaborator.",
+                "date": "Sun, Feb 8, 5:00 AM"
+            },
+            {
+                "type": "email",
+                "sender": "IT Support <admin@hacknation.ai>",
+                "subject": "Connectivity Issues on the Platform?",
+                "content": "We are seeing a spike in traffic to the submission portal. If you get a 504 Gateway Timeout, please refresh and try again. Do not leave your submission to the last minute!",
+                "date": "Sun, Feb 8, 6:00 AM"
+            },
+            {
+                "type": "email",
+                "sender": "Devpost <support@devpost.com>",
+                "subject": "Video Upload Processing Delays",
+                "content": "YouTube and Loom imports are taking longer than expected. Please upload your video files directly if links don't work.",
+                "date": "Sun, Feb 8, 7:00 AM"
+            }
+        ]
+    },
+    {
+        "batch_id": 6,
+        "emails": [
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "FINAL CALL: Submission Deadline in 30 Minutes!",
+                "content": "This is the final warning. The portal closes automatically at 9:00 AM ET.\n\nIf your video is still rendering, submit the text description first and edit the link in the next 5 minutes. GO GO GO!",
+                "date": "Sun, Feb 8, 8:30 AM"
+            },
+            {
+                "type": "email",
+                "sender": "Platform Team <noreply@hacknation.ai>",
+                "subject": "SUBMISSIONS CLOSED",
+                "content": "The submission portal is now closed. Judges are beginning their review.",
+                "date": "Sun, Feb 8, 9:00 AM"
+            },
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "Relax & Pitch Prep",
+                "content": "Take a breath! You did it. While judges review, get some sleep or prepare your pitch just in case.",
+                "date": "Sun, Feb 8, 9:15 AM"
+            }
+        ]
+    },
+    {
+        "batch_id": 7,
+        "emails": [
+            {
+                "type": "email",
+                "sender": "Hackathon Jury <jury@hacknation.ai>",
+                "subject": "Top 16 Finalists Announced!",
+                "content": "The judges have deliberated.\n\nThe Top 16 teams selected to pitch live are listed here: [Link to Doc]\n\nIf you are on this list, join the 'Main Stage' Zoom immediately. You will have 2 minutes to pitch.",
+                "date": "Sun, Feb 8, 1:30 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "CONFLICT: Finalist Announcement Time",
+                "content": "Correction: Finalists will be announced at 2:00 PM ET, not 1:30 PM. Apologies for the confusion.",
+                "date": "Sun, Feb 8, 1:35 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "Final Pitch Session Instructions - PLEASE READ",
+                "content": "Dedicated Zoom Link (Do not use desktop notification): https://mit.zoom.us/j/99162894059\n\nFormat:\n* 2 minutes to pitch\n* Ready to screen share\n* Practice your pitch!",
+                "date": "Sun, Feb 8, 1:45 PM"
+            }
+        ]
+    },
+    {
+        "batch_id": 8,
+        "emails": [
+            {
+                "type": "email",
+                "sender": "Hackathon Bot <bot@hacknation.ai>",
+                "subject": "Voting for 'Community Choice' Award is Open",
+                "content": "While the judges decide the Grand Prize, YOU decide the Community Choice winner.\n\nVote for your favorite project on the platform now. Voting closes in 20 minutes.",
+                "date": "Sun, Feb 8, 3:30 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "Congratulations to our Winners! 🏆",
+                "content": "What an incredible weekend!\n\n1st Place: Team Neuro-Sync\n2nd Place: Team Agent-X\n3rd Place: Team Health-AI\n\nAll participants: Check your email for participation certificates and sponsor perks ($$$).",
+                "date": "Sun, Feb 8, 4:00 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Event Team <events@hacknation.ai>",
+                "subject": "Post-Hackathon Networking & Mixer",
+                "content": "The official hacking is over, but the networking continues!\n\nJoin us on Discord voice channels or the local meetups in San Francisco, Munich, and London for pizza and drinks. See you next year!",
+                "date": "Sun, Feb 8, 5:00 PM"
+            }
+        ]
+    },
+    {
+        "batch_id": 9,
+        "emails": [
+            {
+                "type": "email",
+                "sender": "Sponsor - OpenAI <startups@openai.com>",
+                "subject": "Exclusive Credits for Winners",
+                "content": "Winners, please reply to this email to claim your $2500 in API credits.",
+                "date": "Sun, Feb 8, 6:00 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Linn Bieske <lbieske@mit.edu>",
+                "subject": "Lost and Found - SF Hub",
+                "content": "Found: One MacBook charger and a 'Rust is great' sticker. Come pick it up at the front desk.",
+                "date": "Sun, Feb 8, 7:00 PM"
+            },
+            {
+                "type": "email",
+                "sender": "Hackathon Survey <feedback@hacknation.ai>",
+                "subject": "Tell us how we did!",
+                "content": "Please fill out this 2-minute survey to help us improve next year. One lucky respondent will win an iPad.",
+                "date": "Sun, Feb 8, 8:00 PM"
+            }
+        ]
+    }
+]
