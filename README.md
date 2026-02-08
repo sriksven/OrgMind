@@ -78,6 +78,11 @@ Advanced briefing interface with:
 - Node.js 20+
 - npm 11+
 
+### Live Demo
+
+- **Frontend (GitHub Pages):** https://sriksven.github.io/OrgMind/
+- **Backend (Render):** https://orgmind.onrender.com
+
 ### Installation
 
 ```bash
@@ -93,7 +98,7 @@ make dev
 ```
 
 **That's it!** Open:
-- **Frontend:** http://localhost:5174/
+- **Frontend:** http://localhost:5173/
 - **Backend API:** http://127.0.0.1:8000/
 - **API Docs:** http://127.0.0.1:8000/docs
 
@@ -380,7 +385,23 @@ make dev
 
 Both servers start automatically:
 - Backend: http://127.0.0.1:8000
-- Frontend: http://localhost:5174
+- Frontend: http://localhost:5173
+
+### Production (Render + GitHub Pages)
+
+**Backend (Render)**
+- Start command: `PYTHONPATH=. uvicorn main:app --host 0.0.0.0 --port $PORT`
+- Set `CORS_ORIGINS` to include your GitHub Pages origin (note: origin is scheme + host only):
+  - `https://sriksven.github.io`
+
+**Frontend (GitHub Pages)**
+- Repo `Settings → Pages → Source`: `GitHub Actions`
+- Repo secret (optional but recommended): `VITE_API_BASE_URL=https://orgmind.onrender.com`
+  - If omitted, the Pages workflow defaults to `https://orgmind.onrender.com`.
+
+**Keepalive (optional)**
+- Workflow: `.github/workflows/keepalive.yml` pings Render every 10 minutes.
+- Optional secret: `RENDER_HEALTH_URL` (defaults to `https://orgmind.onrender.com/health`).
 
 ### Production Build
 
@@ -470,7 +491,7 @@ MIT License - See LICENSE file
 
 ### Access Points
 
-- **Frontend UI:** http://localhost:5174/
+- **Frontend UI:** http://localhost:5173/
 - **Backend API:** http://127.0.0.1:8000/
 - **API Docs:** http://127.0.0.1:8000/docs
 - **Health Check:** http://127.0.0.1:8000/health

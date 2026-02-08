@@ -38,7 +38,7 @@ install-dev:
 dev:
 	@echo "🚀 Starting OrgMind in development mode..."
 	@echo "   Backend: http://127.0.0.1:8000"
-	@echo "   Frontend: http://localhost:5174"
+	@echo "   Frontend: http://localhost:5173"
 	@echo ""
 	@echo "   Press Ctrl+C to stop"
 	@make -j2 dev-backend dev-frontend
@@ -104,4 +104,4 @@ status:
 	@echo "📊 OrgMind Status"
 	@echo "=================="
 	@curl -s http://127.0.0.1:8000/health | python3 -c "import sys, json; d=json.load(sys.stdin); print(f'Backend: {d[\"status\"]}'); print(f'Nodes: {d[\"graph\"][\"nodes_total\"]}'); print(f'Edges: {d[\"graph\"][\"edges_total\"]}')" 2>/dev/null || echo "Backend: Not running"
-	@curl -s http://localhost:5174/ -o /dev/null -w "Frontend: %{http_code}\n" 2>/dev/null || echo "Frontend: Not running"
+	@curl -s http://localhost:5173/ -o /dev/null -w "Frontend: %{http_code}\n" 2>/dev/null || echo "Frontend: Not running"
