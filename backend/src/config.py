@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     
     # AI Model Settings
     OPENAI_API_KEY: str | None = None
-    OPENAI_MODEL: str = "gemini-2.0-flash"
+    OPENAI_MODEL: str = "gpt-4o"
     
     # Data Storage
     DATA_DIR: Path = Path(__file__).parent.parent / "data"

@@ -145,7 +145,7 @@ async def health():
         "graph_loaded": _graph_loaded_from_disk,
         "agents_initialized": coordinator is not None,
         "graph": graph_stats,
-        "model": os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
+        "model": os.getenv("OPENAI_MODEL", "gpt-4o"),
         "stats": app.state.stats,
     }
 

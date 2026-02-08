@@ -1,4 +1,4 @@
-"""Extract entities from selected Enron emails using Gemini (Google Generative AI).
+"""Extract entities from selected Enron emails using ChatGPT (OpenAI).
 
 Input: backend/data/processed/enron_200.csv
 Output: backend/data/processed/enron_entities.json
