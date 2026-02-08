@@ -1,8 +1,8 @@
 # OrgMind - AI Chief of Staff
 
-OrgMind is an automated organizational intelligence system. It acts as a central brain for your company, turning scattered communications like emails and announcements into a structured knowledge graph that you can query in plain English.
+OrgMind is an automated organizational intelligence system. It acts as a central brain for your company, turning scattered communications like emails and announcements into a structured knowledge graph that you can query in plain English (or via Voice!).
 
-Think of it as a combination of a search engine and a map for your organization's knowledge.
+Think of it as a combination of a search engine, a map, and a smart assistant for your organization's knowledge.
 
 ## What It Does
 
@@ -12,7 +12,7 @@ It works by:
 1. **Reading Communications:** It ingests emails and updates to understand what is happening.
 2. **Building a Graph:** It connects people, decisions, and topics in a network (a knowledge graph).
 3. **Analyzing Risks:** An AI agent monitors this graph to spot conflicts, delays, or blocked teams.
-4. **Answering Questions:** You can ask it questions, and it provides answers based on the current facts.
+4. **Answering Questions:** You can ask it questions (typed or spoken), and it provides answers based on the current facts.
 
 ## Key Features
 
@@ -28,8 +28,10 @@ A real-time dashboard that gives you an executive summary of the organization's 
 - **Risk Detection:** Automatically identifies blocked teams or delayed projects.
 - **Timeline:** Shows a chronological view of recent decisions and events.
 
-### 3. Command Interface
-A simple search bar (accessible via Cmd+K) allows you to navigate the system instantly. You can jump to a specific person, find a decision, or ask a general question.
+### 3. Voice Integration (New!)
+Interact with your AI Chief of Staff naturally.
+- **Voice Input:** Click the microphone icon to speak your query.
+- **Read Aloud:** Listen to the AI's analysis using high-quality ElevenLabs voices.
 
 ### 4. Traffic Simulation
 For demonstration purposes, OrgMind includes a simulation engine that generates realistic email traffic. This allows you to see the system in action without connecting it to live company data immediately.
@@ -44,7 +46,8 @@ The project is divided into two main parts:
 - **AI Agents:** 
   - **Intelligence Agent:** Analyzes the graph for risks.
   - **Coordinator:** Manages the flow of information.
-- **LLM Integration:** Uses OpenAI (GPT-4) for understanding text and generating insights.
+- **LLM Integration:** Uses OpenAI (GPT-4) for intelligence.
+- **TTS Integration:** Uses ElevenLabs for voice output.
 
 ### Frontend (React)
 - **Framework:** React with Vite
@@ -59,7 +62,8 @@ Follow these steps to set up OrgMind on your local machine.
 ### Prerequisites
 - Python 3.12 or higher
 - Node.js 20 or higher
-- An OpenAI API Key
+- OpenAI API Key
+- ElevenLabs API Key (Optional, for voice)
 
 ### 1. Installation
 
@@ -81,10 +85,11 @@ npm install
 
 ### 2. Configuration
 
-Create a `.env` file in the `backend` directory with your API key:
+Create a `.env` file in the `backend` directory with your API keys:
 ```
-OPENAI_API_KEY=your_api_key_here
+OPENAI_API_KEY=your_openai_key
 OPENAI_MODEL=gpt-4o
+ELEVENLABS_API_KEY=your_elevenlabs_key
 ```
 
 ### 3. Running the Application
@@ -111,7 +116,7 @@ Open a terminal in the `backend` folder and run:
 ```bash
 python scripts/simulate_traffic.py
 ```
-Refresh the frontend to see the new data appear in the Timeline and Situation Brief.
+Refresh the frontend to see the new data appear in the Timeline, Situation Brief, and Graph.
 
 ## API Documentation
 
@@ -121,8 +126,8 @@ http://127.0.0.1:8000/docs
 **Key Endpoints:**
 - `GET /health` - Checks if the system is running.
 - `POST /query` - Asks a question to the AI.
+- `POST /tts` - Proxies text-to-speech requests.
 - `GET /graph` - Retrieves the full knowledge graph.
-- `GET /agents/status` - Gets the current status of AI agents.
 
 ## Project Structure
 
@@ -131,11 +136,10 @@ OrgMind/
 ├── backend/                  # Python FastAPI application
 │   ├── agents/               # AI Agents (Intelligence, Coordinator)
 │   ├── data/                 # Data storage (graphs, simulation data)
-│   ├── data_pipeline/        # Ingestion and processing logic
 │   ├── knowledge_graph/      # NetworkX graph builder
 │   ├── scripts/              # Utility scripts (simulation)
 │   ├── tests/                # Unit and integration tests
-│   ├── main.py               # API entry point
+│   ├── main.py               # API entry point & TTS endpoint
 │   └── requirements.txt      # Python dependencies
 │
 ├── frontend/                 # React application
@@ -143,7 +147,7 @@ OrgMind/
 │   │   ├── components/       # UI Components
 │   │   │   ├── features/     # Key features (Graph, Brief, etc.)
 │   │   │   └── layout/       # Layout components (Sidebar)
-│   │   ├── services/         # API client services
+│   │   ├── hooks/            # Custom hooks (useVoiceInput)
 │   │   └── App.jsx           # Main application wrapper
 │   └── package.json          # Node dependencies
 │
