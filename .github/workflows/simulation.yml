@@ -9,6 +9,9 @@ on:
 jobs:
   simulate_traffic:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - uses: actions/checkout@v4
       
@@ -23,4 +26,4 @@ jobs:
       - name: Run Simulation
         env:
           API_URL: https://orgmind.onrender.com/process
-        run: python backend/scripts/simulate_traffic.py
+        run: python scripts/simulate_traffic.py
